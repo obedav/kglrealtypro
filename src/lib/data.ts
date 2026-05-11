@@ -18,13 +18,16 @@ import type { Agent, BlogPost, Listing, ListingStatus } from "@/types";
 // ---------------------------------------------------------------------------
 // Mode
 // ---------------------------------------------------------------------------
+
+// In dev without DB → rich stub data so the UI renders end-to-end locally.
+// In production without DB → empty stubs so the build succeeds and pages
+// show the empty-state UI until the DB env vars are wired up on Vercel.
+const IS_DEV = process.env.NODE_ENV === "development";
+
 function useStubs(): boolean {
   if (isDbConfigured()) return false;
-  if (process.env.NODE_ENV === "development") {
-    warnStubOnce();
-    return true;
-  }
-  throw new Error("MySQL is not configured (set MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE)");
+  warnStubOnce();
+  return true;
 }
 
 let _warned = false;
@@ -32,15 +35,16 @@ function warnStubOnce() {
   if (_warned) return;
   _warned = true;
   console.warn(
-    "\n[data] MySQL env not set — serving STUB data for local dev.\n" +
-      "       Configure MYSQL_HOST / _USER / _PASSWORD / _DATABASE to hit a real DB.\n",
+    IS_DEV
+      ? "\n[data] MySQL env not set — serving STUB data for local dev.\n       Configure MYSQL_HOST / _USER / _PASSWORD / _DATABASE to hit a real DB.\n"
+      : "\n[data] MySQL env not set — serving empty data. Add MYSQL_* env vars to show real listings.\n",
   );
 }
 
 // ---------------------------------------------------------------------------
-// Stub data for dev
+// Stub data — demo content in dev, empty arrays in production without DB
 // ---------------------------------------------------------------------------
-const STUB_LISTINGS: Listing[] = [
+const STUB_LISTINGS: Listing[] = IS_DEV ? [
   {
     id: "stub-1",
     slug: "monastery-road-sangotedo",
@@ -124,9 +128,9 @@ const STUB_LISTINGS: Listing[] = [
     datePosted: new Date().toISOString(),
     featured: true,
   },
-];
+] : [];
 
-const STUB_AGENTS: Agent[] = [
+const STUB_AGENTS: Agent[] = IS_DEV ? [
   {
     id: "stub-agent-1",
     slug: "adekunle-moruf",
@@ -150,9 +154,9 @@ const STUB_AGENTS: Agent[] = [
     specialties: ["Buyer representation", "Diaspora"],
     languages: ["English", "Yoruba"],
   },
-];
+] : [];
 
-const STUB_POSTS: BlogPost[] = [
+const STUB_POSTS: BlogPost[] = IS_DEV ? [
   {
     id: "stub-post-1",
     slug: "lagos-luxury-market-q1-2026",
@@ -163,7 +167,7 @@ const STUB_POSTS: BlogPost[] = [
     authorName: "KGL Research Desk",
     categories: ["Market analysis"],
   },
-];
+] : [];
 
 // ---------------------------------------------------------------------------
 // Row → domain mappers
