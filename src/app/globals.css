@@ -1,0 +1,157 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * KGL Realty Pro brand palette — Navy × Gold luxury scheme.
+ *
+ * Primary gold  #B87800  ≈ hsl(43 100% 36%)    — CTAs, links, highlights
+ * Dark text     #222222  ≈ hsl(0 0% 13%)        — body text
+ * Muted         #eaeaea  ≈ hsl(0 0% 92%)        — borders, subtle bgs
+ * Background    #ffffff  (white)
+ * Brand navy    #0B1E3D  ≈ hsl(220 70% 14%)    — dark surfaces
+ */
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 13%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 13%;
+    --primary: 43 89% 38%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 43 25% 96%;
+    --secondary-foreground: 220 70% 14%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 40%;
+    --accent: 220 70% 14%;
+    --accent-foreground: 0 0% 100%;
+    --border: 0 0% 90%;
+    --input: 0 0% 92%;
+    --ring: 43 89% 38%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 220 45% 8%;
+    --foreground: 0 0% 98%;
+    --card: 220 45% 10%;
+    --card-foreground: 0 0% 98%;
+    --primary: 43 90% 58%;
+    --primary-foreground: 220 70% 14%;
+    --secondary: 220 30% 15%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 220 30% 14%;
+    --muted-foreground: 0 0% 60%;
+    --accent: 220 70% 14%;
+    --accent-foreground: 0 0% 100%;
+    --border: 220 30% 18%;
+    --input: 220 30% 18%;
+    --ring: 43 90% 58%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    /* Smooth dark-mode colour transitions — skip on reduced-motion */
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    body { transition: none; }
+  }
+
+  /* Branded text selection */
+  ::selection {
+    background-color: hsl(var(--primary) / 0.15);
+    color: hsl(var(--foreground));
+  }
+
+  /* Balanced line-wrapping on display headings */
+  h1, h2, h3 {
+    text-wrap: balance;
+  }
+
+  /* Focusable elements inherit the brand ring without needing individual classes */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+}
+
+/* ---------------------------------------------------------------------- */
+/* Prose overrides — make article body text worthy of luxury editorial.    */
+/* ---------------------------------------------------------------------- */
+@layer components {
+  .prose {
+    --tw-prose-body: hsl(var(--foreground));
+    --tw-prose-headings: hsl(var(--foreground));
+    --tw-prose-links: hsl(var(--primary));
+    --tw-prose-bold: hsl(var(--foreground));
+    --tw-prose-quotes: hsl(var(--muted-foreground));
+    --tw-prose-code: hsl(var(--foreground));
+    --tw-prose-pre-bg: hsl(var(--muted));
+    --tw-prose-hr: hsl(var(--border));
+    --tw-prose-captions: hsl(var(--muted-foreground));
+    --tw-prose-invert-body: hsl(var(--foreground));
+    --tw-prose-invert-headings: hsl(var(--foreground));
+  }
+}
+
+/* ---------------------------------------------------------------------- */
+/* Motion primitives                                                        */
+/* ---------------------------------------------------------------------- */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-up {
+  animation: fade-up 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Ken Burns — slow cinematic zoom for hero backgrounds */
+@keyframes ken-burns {
+  0%   { transform: scale(1)    translate(0,     0);    }
+  100% { transform: scale(1.08) translate(0.5%, -0.5%); }
+}
+
+.animate-ken-burns {
+  animation: ken-burns 10s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-ken-burns { animation: none !important; transform: none !important; }
+}
+
+@keyframes typing-dot {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  40%            { transform: scale(1);   opacity: 1;   }
+}
+
+.typing-dot {
+  animation: typing-dot 1.2s ease-in-out infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up  { animation: none !important; opacity: 1 !important; transform: none !important; }
+  .typing-dot       { animation: none !important; opacity: 1 !important; transform: none !important; }
+}
+
+/* Scroll-cue — a light sweep travelling down a thin line */
+@keyframes scroll-line {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(200%); }
+}
+
+.animate-scroll-line {
+  animation: scroll-line 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-scroll-line { animation: none !important; transform: none !important; }
+}

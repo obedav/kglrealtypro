@@ -1,0 +1,14 @@
+{
+  "name": "kglrealtypro-scripts",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "One-off ops scripts (migration, media cleaning, smoke tests). Not bundled with the Next.js app.",
+  "scripts": {
+    "smoke": "tsx smoke-test.ts"
+  },
+  "dependencies": {
+    "tsx": "^4.19.2",
+    "zod": "^3.24.1"
+  }
+}
