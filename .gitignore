@@ -48,3 +48,5 @@ public/uploads/
 # Misc tools / scripts that aren't part of the public codebase
 tools/
 scripts/local/
+dev-server/
+kimi-code-assistant.html/

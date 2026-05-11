@@ -3,8 +3,6 @@ import { Resend } from "resend";
 // Thin wrapper — single responsibility: deliver one email.
 // Higher-level senders (lead-notify, tour-notify) compose this.
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 const FROM = process.env.LEAD_FROM_EMAIL ?? "concierge@kglrealtypro.com";
 
 export async function sendEmail(opts: {
@@ -14,11 +12,10 @@ export async function sendEmail(opts: {
   replyTo?: string;
 }): Promise<void> {
   if (!process.env.RESEND_API_KEY) {
-    // Dev / preview fallback — log and return. Avoids hard failure before the
-    // client wires up their Resend account.
     console.log("[email/dev]", opts);
     return;
   }
+  const resend = new Resend(process.env.RESEND_API_KEY);
   await resend.emails.send({
     from: FROM,
     to: opts.to,
