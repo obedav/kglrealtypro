@@ -12,8 +12,12 @@ import { getAgentBySlug, getAgents } from "@/lib/data";
 export const revalidate = 600;
 
 export async function generateStaticParams() {
-  const agents = await getAgents();
-  return agents.map((a) => ({ slug: a.slug }));
+  try {
+    const agents = await getAgents();
+    return agents.map((a) => ({ slug: a.slug }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({

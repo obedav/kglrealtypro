@@ -13,8 +13,12 @@ import { sanitizeListingHtml } from "@/lib/sanitize";
 export const revalidate = 600;
 
 export async function generateStaticParams() {
-  const posts = await getBlogPosts(100);
-  return posts.map((p) => ({ slug: p.slug }));
+  try {
+    const posts = await getBlogPosts(100);
+    return posts.map((p) => ({ slug: p.slug }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({
