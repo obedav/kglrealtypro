@@ -72,10 +72,15 @@ export default function AboutPage() {
             </Reveal>
 
             <Reveal delay={150}>
-              <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 to-accent/20 shadow-xl">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="font-serif text-8xl font-black text-primary/10 select-none">KGL</span>
-                </div>
+              <div className="relative aspect-[4/3] overflow-hidden rounded-2xl shadow-xl">
+                <Image
+                  src="/images/story.PNG"
+                  alt="KGL Realty Pro — our story"
+                  fill
+                  sizes="(min-width:768px) 50vw, 100vw"
+                  className="object-cover"
+                  priority
+                />
               </div>
             </Reveal>
           </div>
