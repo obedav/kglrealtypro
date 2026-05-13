@@ -3,13 +3,14 @@
 @tailwind utilities;
 
 /*
- * KGL Realty Pro brand palette — Navy × Gold luxury scheme.
+ * KGL Realty Pro brand palette — Royal Blue × Deep Navy scheme.
+ * Colors taken directly from the KGL logo mark.
  *
- * Primary gold  #B87800  ≈ hsl(43 100% 36%)    — CTAs, links, highlights
+ * Primary blue  #0B35D4  ≈ hsl(229 90% 44%)    — CTAs, links, highlights
  * Dark text     #222222  ≈ hsl(0 0% 13%)        — body text
  * Muted         #eaeaea  ≈ hsl(0 0% 92%)        — borders, subtle bgs
  * Background    #ffffff  (white)
- * Brand navy    #0B1E3D  ≈ hsl(220 70% 14%)    — dark surfaces
+ * Brand navy    #080F45  ≈ hsl(229 82% 15%)     — dark surfaces, hero bg
  */
 @layer base {
   :root {
@@ -17,36 +18,36 @@
     --foreground: 0 0% 13%;
     --card: 0 0% 100%;
     --card-foreground: 0 0% 13%;
-    --primary: 43 89% 38%;
+    --primary: 229 90% 44%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 43 25% 96%;
-    --secondary-foreground: 220 70% 14%;
+    --secondary: 229 30% 96%;
+    --secondary-foreground: 229 82% 15%;
     --muted: 0 0% 96%;
     --muted-foreground: 0 0% 40%;
-    --accent: 220 70% 14%;
+    --accent: 229 82% 13%;
     --accent-foreground: 0 0% 100%;
     --border: 0 0% 90%;
     --input: 0 0% 92%;
-    --ring: 43 89% 38%;
+    --ring: 229 90% 44%;
     --radius: 0.5rem;
   }
 
   .dark {
-    --background: 220 45% 8%;
+    --background: 229 45% 8%;
     --foreground: 0 0% 98%;
-    --card: 220 45% 10%;
+    --card: 229 45% 10%;
     --card-foreground: 0 0% 98%;
-    --primary: 43 90% 58%;
-    --primary-foreground: 220 70% 14%;
-    --secondary: 220 30% 15%;
+    --primary: 229 85% 62%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 229 30% 15%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 220 30% 14%;
+    --muted: 229 30% 14%;
     --muted-foreground: 0 0% 60%;
-    --accent: 220 70% 14%;
+    --accent: 229 82% 13%;
     --accent-foreground: 0 0% 100%;
-    --border: 220 30% 18%;
-    --input: 220 30% 18%;
-    --ring: 43 90% 58%;
+    --border: 229 30% 18%;
+    --input: 229 30% 18%;
+    --ring: 229 85% 62%;
   }
 
   * {

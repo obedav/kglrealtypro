@@ -1,46 +1,44 @@
 import Link from "next/link";
-import { ArrowRight, TrendingUp, Layers, ShieldCheck, BarChart3 } from "lucide-react";
+import { ArrowRight, TrendingUp, Globe, ShieldCheck, BarChart3, Briefcase } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ConciergeChat } from "@/components/ConciergeChat";
 import { PageHero } from "@/components/PageHero";
 import { Reveal } from "@/components/Reveal";
 
-export const metadata = { title: "Real Estate Investment" };
+export const metadata = {
+  title: "Real Estate Investment",
+  description:
+    "Build a high-performing real estate portfolio in Lagos, Abuja, Dubai, and the UK with KGL Realty Pro. Expert advisory for residential and commercial investments.",
+};
 
-const PROGRAMS = [
+const PILLARS = [
   {
-    href: "/investment/cashback",
     Icon: TrendingUp,
-    badge: "Commission rebate",
-    title: "Real Estate Cashback",
-    body: "A program for returning buyers that redirects a portion of agent commission back to the client — reducing the effective acquisition cost on every transaction.",
-    features: [
-      "Eligible on qualifying purchases above ₦100m",
-      "Rebate paid at completion",
-      "Stackable with negotiated price reductions",
-    ],
-    cta: "Learn about cashback →",
+    title: "Capital Appreciation",
+    body: "Strategic acquisition in high-growth corridors — Lekki, Ikoyi, Maitama, and select UAE off-plan — where land value and rental yields consistently outpace inflation.",
   },
   {
-    href: "/investment/land-vest",
-    Icon: Layers,
-    badge: "Fractional land",
-    title: "Land Vest",
-    body: "Fractional investment in pre-development land parcels curated by our acquisition team — with projected appreciation over 24–36 months and transparent exit mechanisms.",
-    features: [
-      "Minimum entry from ₦5m",
-      "Title-verified parcels only",
-      "Quarterly valuation updates",
-    ],
-    cta: "Explore Land Vest →",
+    Icon: Globe,
+    title: "International Diversification",
+    body: "Spread portfolio risk across three currencies and economic zones. Our UK and UAE partner network gives clients access to markets unavailable through Nigerian-only channels.",
+  },
+  {
+    Icon: ShieldCheck,
+    title: "Title-Verified Assets",
+    body: "Every investment property we recommend has passed a legal-title check. C of O, Governor's Consent, or equivalent documentation — confirmed before any conversation about price.",
+  },
+  {
+    Icon: Briefcase,
+    title: "Buy-to-Let Management",
+    body: "For clients acquiring property to let, our team handles tenant sourcing, rent collection, and property management — turning a passive asset into a managed income stream.",
   },
 ];
 
 const STATS = [
-  { value: "₦2B+", label: "Investment facilitated" },
-  { value: "24–36", label: "Month average horizon" },
-  { value: "100%", label: "Title-verified assets" },
+  { value: "₦2B+",  label: "Investment facilitated" },
+  { value: "3",     label: "Countries covered"      },
+  { value: "100%",  label: "Title-verified assets"  },
 ];
 
 export default function InvestmentPage() {
@@ -50,7 +48,7 @@ export default function InvestmentPage() {
       <PageHero
         label="Investment"
         title="Real estate investment"
-        description="Structured programs for clients building a portfolio — not just buying a single home."
+        description="Structured advisory for clients building a portfolio — not just buying a single home."
         breadcrumbs={[{ label: "Investment", href: "/investment" }]}
       />
 
@@ -71,7 +69,7 @@ export default function InvestmentPage() {
           </div>
         </section>
 
-        {/* Programs */}
+        {/* Advisory pillars */}
         <section className="py-20">
           <div className="container">
             <Reveal>
@@ -79,59 +77,98 @@ export default function InvestmentPage() {
                 <div className="flex items-center justify-center gap-3">
                   <span className="h-px w-8 bg-primary" aria-hidden="true" />
                   <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">
-                    Our programs
+                    Our approach
                   </p>
                   <span className="h-px w-8 bg-primary" aria-hidden="true" />
                 </div>
                 <h2 className="mt-4 font-serif text-3xl font-semibold md:text-4xl">
-                  Two ways to grow your portfolio
+                  Investing with KGL Realty Pro
                 </h2>
                 <p className="mt-4 text-muted-foreground">
-                  Both programs are administered by licensed KGL agents with full paper trails
-                  — no opaque structures.
+                  We advise on residential and commercial acquisitions across Nigeria, the UAE,
+                  and the United Kingdom — with full due-diligence support on every transaction.
                 </p>
               </div>
             </Reveal>
 
             <div className="mt-12 grid gap-6 sm:grid-cols-2">
-              {PROGRAMS.map(({ href, Icon, badge, title, body, features, cta }, i) => (
-                <Reveal key={href} delay={i * 100}>
-                  <Link href={href} className="group block h-full outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-2xl">
-                    <div className="flex h-full flex-col overflow-hidden rounded-2xl border bg-card shadow-sm transition-all duration-300 group-hover:-translate-y-1.5 group-hover:shadow-xl group-hover:shadow-black/[0.07]">
-                      <div className="h-1 bg-gradient-to-r from-primary via-primary/60 to-transparent" />
-                      <div className="flex flex-1 flex-col p-8">
-                        <div className="flex items-start gap-4">
-                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 ring-1 ring-primary/20">
-                            <Icon size={22} className="text-primary" aria-hidden="true" />
-                          </div>
-                          <div>
-                            <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-widest text-primary">
-                              {badge}
-                            </span>
-                            <h2 className="mt-2 font-serif text-2xl font-semibold">{title}</h2>
-                          </div>
-                        </div>
-
-                        <p className="mt-5 text-sm leading-relaxed text-muted-foreground">{body}</p>
-
-                        <ul className="mt-6 space-y-2.5">
-                          {features.map((f) => (
-                            <li key={f} className="flex items-start gap-2 text-sm text-muted-foreground">
-                              <ShieldCheck size={14} className="mt-0.5 shrink-0 text-primary" aria-hidden="true" />
-                              {f}
-                            </li>
-                          ))}
-                        </ul>
-
-                        <div className="mt-8 flex items-center gap-1 text-sm font-medium text-primary transition-all group-hover:gap-2">
-                          {cta}
-                        </div>
+              {PILLARS.map(({ Icon, title, body }, i) => (
+                <Reveal key={title} delay={i * 80}>
+                  <div className="flex h-full flex-col overflow-hidden rounded-2xl border bg-card shadow-sm">
+                    <div className="h-1 bg-gradient-to-r from-primary via-primary/60 to-transparent" />
+                    <div className="flex flex-1 flex-col p-8">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 ring-1 ring-primary/20">
+                        <Icon size={22} className="text-primary" aria-hidden="true" />
                       </div>
+                      <h3 className="mt-5 font-serif text-xl font-semibold">{title}</h3>
+                      <p className="mt-3 flex-1 text-sm leading-relaxed text-muted-foreground">{body}</p>
                     </div>
-                  </Link>
+                  </div>
                 </Reveal>
               ))}
             </div>
+          </div>
+        </section>
+
+        {/* UK & UAE callout */}
+        <section className="border-y bg-muted/30 py-16">
+          <div className="container grid gap-10 md:grid-cols-2 md:items-center">
+            <Reveal>
+              <div className="flex items-center gap-3">
+                <span className="h-px w-8 bg-primary" aria-hidden="true" />
+                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">
+                  International
+                </p>
+              </div>
+              <h2 className="mt-4 font-serif text-3xl font-semibold">
+                UK & UAE investment properties
+              </h2>
+              <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+                Through our vetted partner network, qualified buyers access off-plan and
+                ready-to-move residential investments in London, Manchester, Dubai, and Abu
+                Dhabi — with currency-hedge and residency-pathway benefits built in.
+              </p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <a
+                  href="https://kglrealty.propviewr.com/en/uk/properties"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
+                >
+                  Browse UK listings <ArrowRight size={14} />
+                </a>
+                <a
+                  href="https://kglrealty.propviewr.com/en/ae/properties"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full border px-6 py-2.5 text-sm font-medium transition hover:border-primary hover:text-primary"
+                >
+                  Browse UAE listings <ArrowRight size={14} />
+                </a>
+              </div>
+            </Reveal>
+
+            <Reveal delay={150}>
+              <div className="space-y-3">
+                {[
+                  { market: "United Kingdom", detail: "London, Manchester, Birmingham, Edinburgh", currency: "GBP" },
+                  { market: "United Arab Emirates", detail: "Dubai, Abu Dhabi, Sharjah", currency: "AED" },
+                ].map(({ market, detail, currency }) => (
+                  <div
+                    key={market}
+                    className="flex items-center justify-between rounded-xl border bg-card p-4 shadow-sm"
+                  >
+                    <div>
+                      <p className="font-medium">{market}</p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">{detail}</p>
+                    </div>
+                    <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
+                      {currency}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </Reveal>
           </div>
         </section>
 
@@ -141,15 +178,15 @@ export default function InvestmentPage() {
             <div className="container max-w-2xl text-center">
               <BarChart3 size={32} className="mx-auto text-primary" aria-hidden="true" />
               <h2 className="mt-4 font-serif text-3xl font-semibold text-white">
-                Not sure which program fits?
+                Ready to build your portfolio?
               </h2>
               <p className="mt-4 text-white/60">
                 Our investment advisors will map your goals, risk appetite, and timeline to
-                the right structure — no obligation.
+                the right opportunity — domestic or international, no obligation.
               </p>
               <Link
                 href="/contact"
-                className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-8 py-3 text-sm font-medium text-primary-foreground transition hover:opacity-90"
+                className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-8 py-3 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
               >
                 Book a free consultation <ArrowRight size={15} aria-hidden="true" />
               </Link>

@@ -150,7 +150,7 @@ const STUB_AGENTS: Agent[] = IS_DEV ? [
     role: "Lead Consultant",
     bio: "<p>Nimotalai runs buyer representation end-to-end, specialising in diaspora transactions.</p>",
     phone: "+2347038141774",
-    email: "lead@kglrealtypro.com",
+    email: "hello@kglrealtypro.com",
     specialties: ["Buyer representation", "Diaspora"],
     languages: ["English", "Yoruba"],
   },

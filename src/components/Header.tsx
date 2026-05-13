@@ -4,15 +4,16 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CurrencyToggle } from "@/components/CurrencyToggle";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
+type NavChild = { label: string; href: string; external?: boolean };
 type NavItem = {
   label: string;
   href: string;
-  children?: { label: string; href: string }[];
+  children?: NavChild[];
 };
 
 const NAV: NavItem[] = [
@@ -36,27 +37,17 @@ const NAV: NavItem[] = [
     label: "Listings",
     href: "/properties",
     children: [
-      { label: "Lagos",            href: "/properties?city=Lagos"  },
-      { label: "Abuja",            href: "/properties?city=Abuja"  },
-      { label: "Ibadan",           href: "/properties?city=Ibadan" },
-      { label: "Ogun",             href: "/properties?city=Ogun"   },
-      { label: "Asaba",            href: "/properties?city=Asaba"  },
-      { label: "Dubai",            href: "/properties?city=Dubai"  },
-      { label: "New Developments", href: "/new-developments"       },
-      { label: "Short Stay",       href: "/short-stay"             },
+      { label: "Lagos",            href: "/properties?city=Lagos"                                     },
+      { label: "Abuja",            href: "/properties?city=Abuja"                                     },
+      { label: "United Kingdom",   href: "https://kglrealty.propviewr.com/en/uk/properties", external: true },
+      { label: "UAE",              href: "https://kglrealty.propviewr.com/en/ae/properties", external: true },
+      { label: "New Developments", href: "/new-developments"                                          },
+      { label: "Short Stay",       href: "/short-stay"                                                },
     ],
   },
-  {
-    label: "Investment",
-    href: "/investment",
-    children: [
-      { label: "Cashback",   href: "/investment/cashback"   },
-      { label: "Land Vest",  href: "/investment/land-vest"  },
-    ],
-  },
-  { label: "Blog",    href: "/blog"    },
-  { label: "Agents",  href: "/agents"  },
-  { label: "Contact", href: "/contact" },
+  { label: "Investment",      href: "/investment"     },
+  { label: "Market Insights", href: "/blog"           },
+  { label: "Contact",         href: "/contact"        },
 ];
 
 export function Header() {
@@ -164,20 +155,30 @@ export function Header() {
                     {/* Primary accent top bar */}
                     <div className="h-0.5 bg-primary" />
                     <div className="py-1.5">
-                      {item.children.map((child) => (
-                        <Link
-                          key={child.href}
-                          href={child.href}
-                          className={cn(
-                            "flex items-center gap-2 px-4 py-2.5 text-sm transition-colors hover:bg-muted",
-                            pathname.startsWith(child.href.split("?")[0])
-                              ? "font-semibold text-primary"
-                              : "text-foreground/80",
-                          )}
-                        >
-                          {child.label}
-                        </Link>
-                      ))}
+                      {item.children.map((child) => {
+                        const childClass = cn(
+                          "flex items-center gap-2 px-4 py-2.5 text-sm transition-colors hover:bg-muted",
+                          !child.external && pathname.startsWith(child.href.split("?")[0])
+                            ? "font-semibold text-primary"
+                            : "text-foreground/80",
+                        );
+                        return child.external ? (
+                          <a
+                            key={child.href}
+                            href={child.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={childClass}
+                          >
+                            {child.label}
+                            <ExternalLink size={11} className="ml-auto shrink-0 opacity-40" aria-hidden="true" />
+                          </a>
+                        ) : (
+                          <Link key={child.href} href={child.href} className={childClass}>
+                            {child.label}
+                          </Link>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
@@ -226,21 +227,35 @@ export function Header() {
                 </Link>
                 {item.children && (
                   <div className="mb-1 ml-3 space-y-0.5 border-l-2 border-border/50 pl-3">
-                    {item.children.map((child) => (
-                      <Link
-                        key={child.href}
-                        href={child.href}
-                        onClick={() => setMobileOpen(false)}
-                        className={cn(
-                          "block rounded-lg px-3 py-2 text-sm transition-colors hover:bg-muted",
-                          pathname.startsWith(child.href.split("?")[0])
-                            ? "font-medium text-primary"
-                            : "text-muted-foreground hover:text-foreground",
-                        )}
-                      >
-                        {child.label}
-                      </Link>
-                    ))}
+                    {item.children.map((child) => {
+                      const mobileChildClass = cn(
+                        "block rounded-lg px-3 py-2 text-sm transition-colors hover:bg-muted",
+                        !child.external && pathname.startsWith(child.href.split("?")[0])
+                          ? "font-medium text-primary"
+                          : "text-muted-foreground hover:text-foreground",
+                      );
+                      return child.external ? (
+                        <a
+                          key={child.href}
+                          href={child.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={cn(mobileChildClass, "inline-flex items-center gap-1.5")}
+                        >
+                          {child.label}
+                          <ExternalLink size={11} className="opacity-40" aria-hidden="true" />
+                        </a>
+                      ) : (
+                        <Link
+                          key={child.href}
+                          href={child.href}
+                          onClick={() => setMobileOpen(false)}
+                          className={mobileChildClass}
+                        >
+                          {child.label}
+                        </Link>
+                      );
+                    })}
                   </div>
                 )}
               </div>

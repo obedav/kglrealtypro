@@ -15,8 +15,7 @@ const EXPLORE = [
   { label: "New Developments", href: "/new-developments" },
   { label: "Short Stay",       href: "/short-stay"       },
   { label: "Investment",       href: "/investment"       },
-  { label: "Agents",           href: "/agents"           },
-  { label: "Insights",         href: "/blog"             },
+  { label: "Market Insights",  href: "/blog"             },
 ];
 
 const COMPANY = [
@@ -95,11 +94,11 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="mailto:leads@kglrealtypro.com"
+                  href="mailto:hello@kglrealtypro.com"
                   className="inline-flex items-center gap-2.5 text-white/55 transition-colors hover:text-white"
                 >
                   <Mail size={13} className="shrink-0 text-primary" />
-                  leads@kglrealtypro.com
+                  hello@kglrealtypro.com
                 </a>
               </li>
               <li className="flex items-start gap-2.5 text-white/55">

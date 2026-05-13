@@ -18,16 +18,16 @@ export const revalidate = 300;
 // admin once the agents table is seeded; then swap this constant for a
 // getAgents() call.
 const TEAM = [
-  { name: "Mr Adekunle Moruf",         role: "CEO / Managing Director",  photo: "/images/Mr Adekunle Moruf.jpeg"      },
-  { name: "Mrs Popoola Nimotalai",     role: "Lead Consultant",          photo: "/images/Mrs Popoola Nimotalai.jpeg" },
-  { name: "Miss Oyinkansola Adekunle", role: "Sales Executive",          photo: undefined                            },
+  { name: "Mr Adekunle Moruf",                    role: "CEO / Managing Director",   photo: "/images/Mr Adekunle Moruf.jpeg"      },
+  { name: "Mrs Popoola Nimotalai",                role: "Lead Consultant",           photo: "/images/Mrs Popoola Nimotalai.jpeg" },
+  { name: "Miss Anyalewechi Shiloh Chidinma",     role: "Sales Representative",      photo: undefined                            },
 ];
 
 const WHY_INVEST = [
   { Icon: TrendingUp, title: "Increased returns", body: "Strong capital appreciation and rental yield in mature overseas markets." },
   { Icon: Globe,      title: "Diversification",    body: "Spread risk across currencies and economies — hedge against local volatility." },
   { Icon: Briefcase,  title: "New markets",        body: "Access buyer pools and residency pathways unavailable from domestic portfolios." },
-  { Icon: HomeIcon,   title: "Personal use",       body: "A home-away-from-home in Dubai, London, or Edinburgh for travel and family." },
+  { Icon: HomeIcon,   title: "Personal use",       body: "A home-away-from-home in Dubai, Abu Dhabi, or London for travel and family." },
 ];
 
 const FAQS = [
@@ -191,6 +191,96 @@ export default async function HomePage() {
               ))}
             </div>
 
+          </div>
+        </section>
+
+        {/* UK & UAE Partner Listings */}
+        <section className="py-16 md:py-24">
+          <div className="container">
+            <Reveal>
+              <div className="mb-10 flex items-end justify-between gap-6">
+                <div>
+                  <div className="flex items-center gap-3">
+                    <span className="h-px w-8 bg-primary" aria-hidden="true" />
+                    <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">
+                      International properties
+                    </p>
+                  </div>
+                  <h2 className="mt-3 font-serif text-3xl font-semibold md:text-4xl">
+                    Browse UK & UAE Listings
+                  </h2>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    Curated residential and investment properties across the United Kingdom and the United Arab Emirates — sourced through our verified international partners.
+                  </p>
+                </div>
+                <a
+                  href="https://kglrealty.propviewr.com/en/uk/properties"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group inline-flex shrink-0 items-center gap-2 rounded-full border px-5 py-2.5 text-sm font-medium transition-all hover:border-primary hover:text-primary"
+                >
+                  View all
+                  <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" />
+                </a>
+              </div>
+            </Reveal>
+
+            <div className="grid gap-6 sm:grid-cols-2">
+              {[
+                {
+                  region: "United Kingdom",
+                  markets: "London · Manchester · Birmingham · Edinburgh",
+                  description: "Prime residential and buy-to-let investment properties across major UK cities. Our UK partner team handles viewings, mortgage referrals, and post-completion management on behalf of Nigerian buyers.",
+                  href: "https://kglrealty.propviewr.com/en/uk/properties",
+                  stat1: { value: "GBP", label: "Currency" },
+                  stat2: { value: "UK", label: "Partner portal" },
+                },
+                {
+                  region: "UAE",
+                  markets: "Dubai · Abu Dhabi · Sharjah",
+                  description: "Luxury apartments, off-plan developments, and villas in the UAE's most sought-after locations. Benefit from strong capital appreciation, residency pathways, and world-class amenities.",
+                  href: "https://kglrealty.propviewr.com/en/ae/properties",
+                  stat1: { value: "AED", label: "Currency" },
+                  stat2: { value: "UAE", label: "Partner portal" },
+                },
+              ].map(({ region, markets, description, href, stat1, stat2 }, i) => (
+                <Reveal key={region} delay={i * 100}>
+                  <a
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex h-full flex-col overflow-hidden rounded-2xl border bg-card shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-black/[0.07] outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  >
+                    <div className="h-1 bg-gradient-to-r from-primary via-primary/60 to-transparent" />
+                    <div className="flex flex-1 flex-col p-8">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 ring-1 ring-primary/20">
+                          <Globe size={22} className="text-primary" aria-hidden="true" />
+                        </div>
+                        <div>
+                          <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-primary">Partner listings</p>
+                          <h3 className="font-serif text-xl font-semibold">{region}</h3>
+                        </div>
+                      </div>
+
+                      <p className="mt-2 text-xs text-muted-foreground">{markets}</p>
+                      <p className="mt-4 flex-1 text-sm leading-relaxed text-muted-foreground">{description}</p>
+
+                      <div className="mt-6 flex items-center justify-between border-t border-border/50 pt-5">
+                        <div className="flex gap-6 text-xs text-muted-foreground">
+                          <span><strong className="font-semibold text-foreground">{stat1.value}</strong> {stat1.label}</span>
+                          <span><strong className="font-semibold text-foreground">{stat2.value}</strong> {stat2.label}</span>
+                        </div>
+                        <span className="inline-flex items-center gap-1.5 text-sm font-medium text-primary transition-all group-hover:gap-2.5">
+                          Browse listings
+                          <ArrowRight size={14} />
+                        </span>
+                      </div>
+                    </div>
+                  </a>
+                </Reveal>
+              ))}
+            </div>
           </div>
         </section>
 

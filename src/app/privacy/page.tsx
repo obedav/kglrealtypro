@@ -10,7 +10,7 @@ export default function PrivacyPage() {
       label="Legal"
       fallback={{
         title: "Privacy Policy",
-        body: `<p>Full privacy policy under review with counsel. Contact <a href="mailto:leads@kglrealtypro.com">leads@kglrealtypro.com</a> with any privacy-related questions.</p>`,
+        body: `<p>Full privacy policy under review with counsel. Contact <a href="mailto:hello@kglrealtypro.com">hello@kglrealtypro.com</a> with any privacy-related questions.</p>`,
       }}
     />
   );

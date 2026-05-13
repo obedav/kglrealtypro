@@ -3,7 +3,7 @@ import { Resend } from "resend";
 // Thin wrapper — single responsibility: deliver one email.
 // Higher-level senders (lead-notify, tour-notify) compose this.
 
-const FROM = process.env.LEAD_FROM_EMAIL ?? "concierge@kglrealtypro.com";
+const FROM = process.env.LEAD_FROM_EMAIL ?? "hello@kglrealtypro.com";
 
 export async function sendEmail(opts: {
   to: string | string[];

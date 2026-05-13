@@ -26,8 +26,8 @@ const CONTACT_ITEMS = [
   {
     Icon: Mail,
     label: "Email",
-    value: "leads@kglrealtypro.com",
-    href: "mailto:leads@kglrealtypro.com",
+    value: "hello@kglrealtypro.com",
+    href: "mailto:hello@kglrealtypro.com",
     detail: "We reply within 4 business hours",
   },
 ];

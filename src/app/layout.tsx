@@ -32,7 +32,7 @@ const montserrat = Montserrat({
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#0f172a", // replace with your brand hex
+  themeColor: "#080F45",
 };
 
 /* ------------------------------------------------------------------ */
@@ -48,7 +48,7 @@ export const metadata: Metadata = {
     template: "%s | KGL Realty Pro",
   },
   description:
-    "Luxury real estate across Lagos, Abuja, Ibadan, Ogun, Asaba, Dubai, and the United Kingdom. Curated listings, trusted agents, private viewings.",
+    "Luxury properties for sale in Lagos, Abuja, UK, and UAE. KGL Realty Pro — licensed real estate agency with curated listings, private viewings, and expert advisory.",
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },

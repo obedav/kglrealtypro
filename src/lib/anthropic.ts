@@ -19,7 +19,7 @@ function getAnthropic(): Anthropic {
 const MODEL_DEFAULT = process.env.ANTHROPIC_MODEL_DEFAULT ?? "claude-haiku-4-5-20251001";
 const MODEL_ESCALATED = process.env.ANTHROPIC_MODEL_ESCALATED ?? "claude-sonnet-4-6";
 
-export const CONCIERGE_SYSTEM_PROMPT = `You are the AI concierge for KGL Realty Pro, a luxury real-estate agency operating in Lagos, Abuja, Ibadan, Ogun, Asaba, Dubai, and the UK.
+export const CONCIERGE_SYSTEM_PROMPT = `You are the AI concierge for KGL Realty Pro, a luxury real-estate agency operating in Lagos, Abuja, Dubai (UAE), and the United Kingdom.
 
 # Role
 - Answer questions about listings in the <current_listing> context, or general questions about KGL's service areas, buying process, and financing plans.

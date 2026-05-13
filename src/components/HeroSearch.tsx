@@ -19,12 +19,12 @@ interface HeroSearchProps {
 }
 
 const TRUST_CHIPS = [
-  { Icon: Building2,   label: "200+ Verified Listings" },
-  { Icon: MapPin,      label: "Lagos · Dubai · London"  },
-  { Icon: ShieldCheck, label: "Licensed Brokerage"      },
+  { Icon: Building2,   label: "200+ Verified Listings"   },
+  { Icon: MapPin,      label: "Lagos · Abuja · UK & UAE" },
+  { Icon: ShieldCheck, label: "Licensed Brokerage"       },
 ] as const;
 
-const QUICK_CITIES = ["Lagos", "Abuja", "Dubai", "London"] as const;
+const QUICK_CITIES = ["Lagos", "Abuja"] as const;
 
 const HERO_VIDEO = "/video/160033-820167238.mp4";
 
@@ -64,9 +64,10 @@ export function HeroSearch({ cities }: HeroSearchProps) {
   }
 
   return (
-    <section className="relative isolate overflow-hidden bg-accent text-white">
+    <section className="relative isolate min-h-[80vh] overflow-hidden bg-accent text-white lg:min-h-[92vh]">
 
-      {/* ── Layer 1: single video — fills entire section, never remounts ── */}
+      {/* ── Layer 1: video — absolutely fills the section; h-full resolves
+           against the section which now has an explicit min-h ── */}
       <video
         autoPlay
         muted
@@ -82,28 +83,28 @@ export function HeroSearch({ cities }: HeroSearchProps) {
       <div
         aria-hidden="true"
         className="absolute inset-0 z-[1] hidden bg-accent lg:block"
-        style={{ clipPath: "polygon(0 0, 65% 0, 56% 100%, 0 100%)" }}
+        style={{ clipPath: "polygon(0 0, 62% 0, 54% 100%, 0 100%)" }}
       />
 
       {/* ── Layer 2b: mobile — dark gradient overlay over full video ── */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 z-[1] bg-gradient-to-t from-black/75 via-black/50 to-black/20 lg:hidden"
+        className="absolute inset-0 z-[1] bg-gradient-to-t from-black/80 via-black/50 to-black/20 lg:hidden"
       />
 
       {/* ── Layer 3: right-panel depth gradients (desktop) ── */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-[2] hidden lg:block">
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-black/10" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-black/15" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
       </div>
 
       {/* ── Layout ── */}
-      <div className="relative z-[3] flex min-h-[40vh] flex-col lg:min-h-[45vh] lg:flex-row">
+      <div className="relative z-[3] flex min-h-[80vh] flex-col lg:min-h-[92vh] lg:flex-row">
 
         {/* ══════════════════════════════
             LEFT PANEL — content
         ══════════════════════════════ */}
-        <div className="relative flex flex-1 flex-col items-center justify-center px-6 py-12 text-center lg:w-[56%] lg:shrink-0 lg:items-start lg:px-20 lg:text-left">
+        <div className="relative flex flex-1 flex-col items-center justify-center px-6 py-16 text-center lg:w-[54%] lg:shrink-0 lg:items-start lg:px-20 lg:text-left">
 
           {/* Desktop ambient glow */}
           <div aria-hidden="true" className="pointer-events-none absolute inset-0 hidden overflow-hidden lg:block">
@@ -116,10 +117,10 @@ export function HeroSearch({ cities }: HeroSearchProps) {
             {/* Headline */}
             <h1 className="text-balance">
               <span className="animate-in fade-in slide-in-from-bottom-4 block font-serif text-4xl font-normal tracking-tight duration-700 md:text-5xl xl:text-6xl">
-                Exceptional Properties,
+                Luxury Properties for Sale
               </span>
               <span className="animate-in fade-in slide-in-from-bottom-4 block font-serif text-4xl font-semibold tracking-tight duration-700 delay-150 md:text-5xl xl:text-6xl">
-                Across Three Continents.
+                in Lagos, Abuja, UK & UAE.
               </span>
             </h1>
 
