@@ -154,6 +154,8 @@ php-admin/                     Editorial CMS on Namecheap cPanel
 ├── listing-edit.php           Create / edit listing
 ├── listing-image-add.php      Attach image URL to listing
 ├── listing-image-delete.php   Remove image
+├── posts.php                  Blog posts table
+├── post-edit.php              Create / edit blog post
 ├── leads.php, tours.php, handoffs.php   Concierge-captured enquiries
 ├── login.php, logout.php      Session auth
 ├── includes/
@@ -212,7 +214,7 @@ Hover reveal:      grid-rows-[0fr] opacity-0
 
 - **Reads** (home, listings, blog, agents) go Next.js → `mysql2` pool → MySQL on cPanel. Domain queries live in `src/lib/data.ts`.
 - **Concierge writes** (`lead`, `tour_request`, `handoff_request`) go through Zod validation → `src/lib/sinks/db-lead.ts` → MySQL. Email via Resend is fire-and-forget.
-- **Editorial writes** (listings, images, lead status) come from the PHP admin on cPanel → MySQL.
+- **Editorial writes** (listings, images, blog posts, lead status) come from the PHP admin on cPanel → MySQL.
 
 ---
 

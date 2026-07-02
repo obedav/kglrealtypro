@@ -309,7 +309,7 @@ export default async function HomePage() {
               </div>
             </Reveal>
 
-            <div className="mx-auto mt-14 grid max-w-4xl gap-6 sm:grid-cols-3">
+            <div className="mx-auto mt-14 flex max-w-4xl flex-wrap justify-center gap-6">
               {TEAM.map((person, i) => {
                 const initials = person.name
                   .replace(/^(Mr|Mrs|Miss|Ms|Dr)\.?\s+/i, "")
@@ -320,7 +320,7 @@ export default async function HomePage() {
                   .join("")
                   .toUpperCase();
                 return (
-                  <Reveal key={person.name} delay={i * 100}>
+                  <Reveal key={person.name} delay={i * 100} className="w-full sm:w-[calc(33.333%-1.1rem)]">
                     <div className="group overflow-hidden rounded-2xl border bg-card shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-black/[0.07]">
 
                       {/* Accent top bar */}

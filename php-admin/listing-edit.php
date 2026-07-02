@@ -16,7 +16,9 @@ $form = [
     'bedrooms' => 0, 'bathrooms' => 0, 'toilets' => 0, 'sqm' => 0,
     'condition' => '', 'title_type' => '', 'parking' => '', 'category' => '',
     'amenities_csv' => '', 'property_type' => '',
-    'status' => 'available', 'featured' => 0, 'just_listed' => 0,
+    // New listings default to featured so they show on the homepage
+    // immediately; editors can untick this to hold one back.
+    'status' => 'available', 'featured' => 1, 'just_listed' => 0,
     'virtual_tour_url' => '',
     // SEO
     'seo_title' => '', 'meta_description' => '', 'primary_keyword' => '',

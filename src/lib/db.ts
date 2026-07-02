@@ -68,7 +68,12 @@ export async function query<T extends RowDataPacket>(
   sql: string,
   params: ReadonlyArray<ParamValue> = [],
 ): Promise<T[]> {
-  const [rows] = await getPool().execute<T[]>(sql, params as ParamValue[]);
+  // .query() (text protocol, client-escaped placeholders), not .execute()
+  // (binary prepared statements) — mysql2's binary protocol mishandles
+  // LIMIT/OFFSET placeholder types against MySQL 8.4+/9.x, throwing
+  // "Incorrect arguments to mysqld_stmt_execute". .query() still escapes
+  // `?` params safely, it just skips the prepared-statement path.
+  const [rows] = await getPool().query<T[]>(sql, params as ParamValue[]);
   return rows;
 }
 
@@ -86,6 +91,6 @@ export async function exec(
   sql: string,
   params: ReadonlyArray<ParamValue> = [],
 ): Promise<{ insertId: number; affectedRows: number }> {
-  const [result] = await getPool().execute<ResultSetHeader>(sql, params as ParamValue[]);
+  const [result] = await getPool().query<ResultSetHeader>(sql, params as ParamValue[]);
   return { insertId: result.insertId, affectedRows: result.affectedRows };
 }
