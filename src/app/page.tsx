@@ -20,7 +20,6 @@ export const revalidate = 300;
 const TEAM = [
   { name: "Mr Adekunle Moruf",                    role: "CEO / Managing Director",   photo: "/images/Mr Adekunle Moruf.jpeg"      },
   { name: "Mrs Popoola Nimotalai",                role: "Lead Consultant",           photo: "/images/Mrs Popoola Nimotalai.jpeg" },
-  { name: "Miss Anyalewechi Shiloh Chidinma",     role: "Sales Representative",      photo: undefined                            },
 ];
 
 const WHY_INVEST = [
@@ -163,7 +162,9 @@ export default async function HomePage() {
 
               <div className="mt-8">
                 <Button asChild size="lg" className="bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20">
-                  <Link href="/properties?city=Dubai">View international listings →</Link>
+                  <a href="https://kglrealty.propviewr.com/en/uk/properties" target="_blank" rel="noopener noreferrer">
+                    View international listings →
+                  </a>
                 </Button>
               </div>
             </Reveal>
