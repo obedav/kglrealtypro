@@ -24,6 +24,9 @@ export const CaptureLeadInput = z.object({
   timeframe: z
     .enum(["immediate", "3_months", "6_months", "12_months", "exploratory"])
     .optional(),
+  source: z
+    .enum(["concierge", "form", "whatsapp", "phone", "referral"])
+    .optional(),
 });
 export type CaptureLeadInput = z.infer<typeof CaptureLeadInput>;
 

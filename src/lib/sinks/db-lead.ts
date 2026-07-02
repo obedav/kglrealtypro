@@ -35,8 +35,9 @@ export async function saveLead(input: SaveKind): Promise<number> {
         `INSERT INTO leads
           (source, full_name, phone, email, interest_summary,
            budget_ngn, location_preference, timeframe)
-         VALUES ('concierge', ?, ?, ?, ?, ?, ?, ?)`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
         [
+          p.source ?? "concierge",
           p.full_name,
           p.phone ?? null,
           p.email ?? null,

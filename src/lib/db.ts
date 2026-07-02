@@ -3,9 +3,9 @@
  * through `query` / `queryOne` / `exec`. No ORM — schema is small, queries are
  * explicit, and we keep migrations in plain SQL (`db/schema.sql`).
  *
- * Connection target is the Namecheap cPanel MySQL instance. Because Vercel
- * egress IPs are not stable, the DB host needs either (a) a cPanel "Access
- * Host" wildcard that permits Vercel, or (b) a static-IP tunnel. See
+ * Connection target is the Syskay cPanel MySQL instance. Because Vercel
+ * egress IPs are not stable, the DB host needs either (a) a Syskay cPanel
+ * "Remote MySQL" wildcard that permits Vercel, or (b) a static-IP tunnel. See
  * docs on README for deployment setup.
  */
 

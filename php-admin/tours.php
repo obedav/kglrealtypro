@@ -12,31 +12,57 @@ $tours = db()->query(
        LIMIT 300"
 )->fetchAll();
 
-render_header('Tour requests');
+render_header('Tour Requests');
 ?>
 
-<h1>Tour requests</h1>
-<p class="muted"><?= count($tours) ?> recent.</p>
+<div class="page-header">
+    <div>
+        <div class="page-title">Tour Requests</div>
+        <div class="page-count"><?= count($tours) ?> total</div>
+    </div>
+</div>
 
+<div class="table-wrap">
 <table>
     <thead>
-        <tr><th>When</th><th>Preferred</th><th>Listing</th><th>Name</th><th>Contact</th><th>Notes</th></tr>
+        <tr>
+            <th>Received</th>
+            <th>Preferred Date</th>
+            <th>Listing</th>
+            <th>Client</th>
+            <th>Contact</th>
+            <th>Notes</th>
+        </tr>
     </thead>
     <tbody>
     <?php foreach ($tours as $t): ?>
         <tr>
-            <td class="muted"><?= e(substr((string)$t['created_at'], 0, 16)) ?></td>
-            <td><?= e($t['preferred_date']) ?><?= $t['preferred_time_window'] ? ' — ' . e($t['preferred_time_window']) : '' ?></td>
-            <td><?= e($t['listing_slug']) ?></td>
-            <td><?= e($t['full_name']) ?></td>
-            <td class="muted"><?= e($t['phone']) ?><br><?= e($t['email'] ?? '') ?></td>
-            <td style="max-width:420px" class="muted"><?= e($t['notes'] ?? '') ?></td>
+            <td class="muted"><?= e(substr((string)$t['created_at'], 0, 10)) ?></td>
+            <td>
+                <div style="font-weight:600;color:var(--text)"><?= e($t['preferred_date']) ?></div>
+                <?php if ($t['preferred_time_window']): ?>
+                    <div class="muted"><?= e($t['preferred_time_window']) ?></div>
+                <?php endif; ?>
+            </td>
+            <td><span class="badge" style="background:#F1F5F9;color:#0F172A;font-weight:500"><?= e($t['listing_slug']) ?></span></td>
+            <td style="font-weight:600;color:var(--text)"><?= e($t['full_name']) ?></td>
+            <td class="muted">
+                <?php if ($t['phone']): ?><div><?= e($t['phone']) ?></div><?php endif; ?>
+                <?php if ($t['email']): ?><div><?= e($t['email']) ?></div><?php endif; ?>
+            </td>
+            <td class="muted" style="max-width:280px;font-size:13px"><?= e($t['notes'] ?? '—') ?></td>
         </tr>
     <?php endforeach; ?>
     <?php if (!$tours): ?>
-        <tr><td colspan="6" class="muted">No tour requests yet.</td></tr>
+        <tr><td colspan="6">
+            <div class="empty-state">
+                <div class="empty-icon">📅</div>
+                <p>No tour requests yet.</p>
+            </div>
+        </td></tr>
     <?php endif; ?>
     </tbody>
 </table>
+</div>
 
 <?php render_footer(); ?>

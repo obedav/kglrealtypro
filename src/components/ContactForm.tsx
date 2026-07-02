@@ -21,6 +21,7 @@ export function ContactForm({ prefilledListing }: { prefilledListing?: string })
 
     const data = new FormData(event.currentTarget);
     const body = {
+      source: "form" as const,
       full_name: String(data.get("name") ?? "").trim(),
       phone: String(data.get("phone") ?? "").trim() || undefined,
       email: String(data.get("email") ?? "").trim() || undefined,

@@ -1,8 +1,12 @@
 # KGL Realty Pro — PHP admin
 
 A tiny editorial admin for the KGL Realty Pro MySQL database. Deploys to the
-Namecheap cPanel subdomain (e.g. `admin.kglrealtypro.com`) and writes to the
+Syskay cPanel subdomain (e.g. `admin.kglrealtypro.com`) and writes to the
 same MySQL instance the Next.js public site reads from.
+
+> **Domain vs hosting:** The domain `kglrealtypro.com` is registered on Namecheap
+> (DNS only). All hosting — including this admin panel and the MySQL database —
+> runs on Syskay's cPanel shared hosting.
 
 **Principles:** SOLID, DRY, KISS.
 
@@ -12,20 +16,26 @@ same MySQL instance the Next.js public site reads from.
 - `pages/*.php` — one file per screen; thin wrappers that load shared helpers.
 - No frameworks. No Composer dependencies. Plain PHP 8+ on cPanel.
 
-## Deploy
+## Deploy (Syskay cPanel)
 
-1. In cPanel, create a subdomain (`admin.kglrealtypro.com`) pointed at a
-   directory above `public_html` — e.g. `/home/<user>/admin.kglrealtypro.com`.
-2. Upload the contents of `php-admin/` into that document root.
-3. Create `/home/<user>/admin.kglrealtypro.com/.htaccess` with the contents of
-   `deploy/.htaccess.sample` (HSTS, noindex, block `includes/` + `.env`).
-4. Create `/home/<user>/admin.kglrealtypro.com/.env` from `.env.sample`,
-   populate DB creds, and `chmod 600`.
-5. Apply the schema:  
-   `mysql -h HOST -u USER -p DB < ../db/schema.sql`
-6. Seed the first admin user:  
+1. Log in to Syskay cPanel → **Subdomains** → create `admin.kglrealtypro.com`
+   pointed at a directory **above** `public_html`, e.g.
+   `/home/<cpanel-user>/admin.kglrealtypro.com`.
+2. Upload the contents of `php-admin/` into that document root via
+   cPanel File Manager or SFTP.
+3. Create `.htaccess` in that root using the contents of
+   `deploy/.htaccess.sample` (enforces HTTPS, blocks direct access to
+   `includes/`, `bin/`, and `.env`).
+4. Create `.env` from `deploy/.env.sample`, populate the Syskay MySQL
+   credentials, then `chmod 600 .env` in File Manager (permissions → 600).
+5. In Syskay cPanel → **MySQL Databases**: create the database, user, and grant
+   all privileges. Note the host (usually `localhost` on Syskay shared hosting).
+6. Apply the schema via cPanel → **phpMyAdmin** → Import, or SSH terminal:  
+   `mysql -h localhost -u <user> -p <db> < db/schema.sql`
+7. Seed the first super-admin user — run once via SSH or cPanel Terminal:  
    `php bin/seed-admin.php <username> <password> "<full name>"`
-7. Force HTTPS at the cPanel level (AutoSSL + "Force HTTPS Redirect").
+8. In Syskay cPanel → **SSL/TLS** → enable AutoSSL for the subdomain, then
+   tick "Force HTTPS Redirect".
 
 ## Security
 

@@ -15,4 +15,4 @@ db()->prepare('DELETE FROM listing_images WHERE id = ? AND listing_id = ?')
     ->execute([$id, $listingId]);
 
 flash('Image deleted.');
-header("Location: /listing-edit.php?id=$listingId");
+header("Location: /listing-edit.php?id=$listingId#images");
