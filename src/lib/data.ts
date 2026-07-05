@@ -106,7 +106,7 @@ async function apiFetch<T>(
   }
   const res = await fetch(url.toString(), {
     headers: { "X-Data-Token": DATA_API_TOKEN },
-    cache: "no-store",
+    next: { revalidate: 300 },
   });
   if (!res.ok) throw new Error(`Data API error [${action}]: ${res.status}`);
   return res.json() as Promise<T>;
