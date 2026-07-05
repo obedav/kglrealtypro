@@ -348,12 +348,12 @@ export async function getFeaturedListings(limit = 6): Promise<Listing[]> {
   if (useStubs()) {
     return STUB_LISTINGS.filter((l) => l.featured).slice(0, limit);
   }
+  const safeLimit = Math.max(1, Math.min(Math.trunc(limit), 50));
   const rows = await query<ListingRow>(
     `SELECT * FROM listings
       WHERE featured = 1 AND status = 'available'
       ORDER BY date_posted DESC
-      LIMIT ?`,
-    [Math.max(1, Math.min(limit, 50))],
+      LIMIT ${safeLimit}`,
   );
   return hydrateListings(rows);
 }
@@ -390,13 +390,13 @@ export async function getListings(
     }
   }
   const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
-  const limit = Math.max(1, Math.min(opts.first ?? PAGE_SIZE, 500));
+  const limit = Math.max(1, Math.min(Math.trunc(opts.first ?? PAGE_SIZE), 500));
   const offset = (page - 1) * limit;
   const rows = await query<ListingRow>(
     `SELECT * FROM listings ${whereSql}
       ORDER BY featured DESC, date_posted DESC
-      LIMIT ? OFFSET ?`,
-    [...params, limit, offset],
+      LIMIT ${limit} OFFSET ${offset}`,
+    params,
   );
   return hydrateListings(rows);
 }
@@ -514,9 +514,9 @@ export async function getAgentBySlug(slug: string): Promise<Agent | null> {
 // ---------------------------------------------------------------------------
 export async function getBlogPosts(limit = 12): Promise<BlogPost[]> {
   if (useStubs()) return STUB_POSTS.slice(0, limit);
+  const safeLimit = Math.max(1, Math.min(Math.trunc(limit), 100));
   const rows = await query<PostRow>(
-    "SELECT * FROM posts ORDER BY date_posted DESC LIMIT ?",
-    [Math.max(1, Math.min(limit, 100))],
+    `SELECT * FROM posts ORDER BY date_posted DESC LIMIT ${safeLimit}`,
   );
   return rows.map(mapPost);
 }
