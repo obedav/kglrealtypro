@@ -1,14 +1,8 @@
 /**
- * Public-site data access. Replaces the previous headless-WordPress boundary
- * at `lib/wp.ts`. The public API (function names + signatures) is unchanged
- * so every call site in `src/app/**` keeps working after a one-line import
- * swap.
- *
- * Mode selection:
- *   - If MYSQL_* env is set → live MySQL
- *   - If NODE_ENV=development and MySQL env is missing → demo stubs so the
- *     dev server renders end-to-end without a running DB
- *   - Otherwise → throw at module load (production must fail loud)
+ * Public-site data access. Three modes, evaluated in priority order:
+ *   1. DATA_API_URL + DATA_API_TOKEN set  → PHP proxy on shared hosting
+ *   2. MYSQL_* env vars set               → direct MySQL (local dev / future)
+ *   3. NODE_ENV=development, no DB        → stub data so the UI renders locally
  */
 
 import type { RowDataPacket } from "mysql2";
@@ -19,9 +13,6 @@ import type { Agent, BlogPost, Listing, ListingStatus } from "@/types";
 // Mode
 // ---------------------------------------------------------------------------
 
-// In dev without DB → rich stub data so the UI renders end-to-end locally.
-// In production without DB → empty stubs so the build succeeds and pages
-// show the empty-state UI until the DB env vars are wired up on Vercel.
 const IS_DEV = process.env.NODE_ENV === "development";
 
 function useStubs(): boolean {
@@ -39,6 +30,139 @@ function warnStubOnce() {
       ? "\n[data] MySQL env not set — serving STUB data for local dev.\n       Configure MYSQL_HOST / _USER / _PASSWORD / _DATABASE to hit a real DB.\n"
       : "\n[data] MySQL env not set — serving empty data. Add MYSQL_* env vars to show real listings.\n",
   );
+}
+
+// ---------------------------------------------------------------------------
+// API mode (PHP proxy — bypasses direct MySQL when TCP is blocked by shared hosting)
+// ---------------------------------------------------------------------------
+
+const DATA_API_URL = (process.env.DATA_API_URL ?? "").replace(/\/$/, "");
+const DATA_API_TOKEN = process.env.DATA_API_TOKEN ?? "";
+
+function useApi(): boolean {
+  return Boolean(DATA_API_URL && DATA_API_TOKEN);
+}
+
+type ApiListingRow = {
+  id: number;
+  slug: string;
+  title: string;
+  excerpt: string;
+  description: string;
+  price_ngn: string | number;
+  city: string;
+  country: string;
+  bedrooms: number;
+  bathrooms: number;
+  sqm: number;
+  amenities: string | string[];
+  property_type: string | null;
+  status: ListingStatus;
+  featured: 0 | 1;
+  virtual_tour_url: string | null;
+  date_posted: string;
+  gallery: string[];
+};
+
+type ApiPostRow = {
+  id: number;
+  slug: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  author_name: string;
+  featured_image_url: string | null;
+  categories: string | string[];
+  date_posted: string;
+};
+
+type ApiAgentRow = {
+  id: number;
+  slug: string;
+  full_name: string;
+  role: string;
+  bio: string;
+  photo_url: string | null;
+  phone: string;
+  whatsapp: string | null;
+  email: string;
+  specialties: string | string[];
+  languages: string | string[];
+};
+
+async function apiFetch<T>(
+  action: string,
+  params: Record<string, string | number | string[] | undefined> = {},
+): Promise<T> {
+  const url = new URL(DATA_API_URL);
+  url.searchParams.set("action", action);
+  for (const [k, v] of Object.entries(params)) {
+    if (v === undefined || v === null) continue;
+    if (Array.isArray(v)) {
+      for (const item of v) url.searchParams.append(`${k}[]`, item);
+    } else if (v !== "") {
+      url.searchParams.set(k, String(v));
+    }
+  }
+  const res = await fetch(url.toString(), {
+    headers: { "X-Data-Token": DATA_API_TOKEN },
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error(`Data API error [${action}]: ${res.status}`);
+  return res.json() as Promise<T>;
+}
+
+function mapApiListing(row: ApiListingRow): Listing {
+  return {
+    id: String(row.id),
+    slug: row.slug,
+    title: row.title,
+    excerpt: row.excerpt,
+    description: row.description,
+    priceNGN: Number(row.price_ngn),
+    city: row.city,
+    country: row.country,
+    bedrooms: Number(row.bedrooms),
+    bathrooms: Number(row.bathrooms),
+    sqm: Number(row.sqm),
+    amenities: parseJsonArray(row.amenities),
+    gallery: row.gallery,
+    propertyType: row.property_type ?? undefined,
+    status: row.status,
+    datePosted: String(row.date_posted),
+    featured: Boolean(row.featured),
+    virtualTourUrl: row.virtual_tour_url ?? undefined,
+  };
+}
+
+function mapApiPost(row: ApiPostRow): BlogPost {
+  return {
+    id: String(row.id),
+    slug: row.slug,
+    title: row.title,
+    excerpt: row.excerpt,
+    content: row.content,
+    datePosted: String(row.date_posted),
+    featuredImage: row.featured_image_url ?? undefined,
+    authorName: row.author_name,
+    categories: parseJsonArray(row.categories),
+  };
+}
+
+function mapApiAgent(row: ApiAgentRow): Agent {
+  return {
+    id: String(row.id),
+    slug: row.slug,
+    fullName: row.full_name,
+    role: row.role,
+    bio: row.bio,
+    photo: row.photo_url ?? undefined,
+    phone: row.phone,
+    whatsapp: row.whatsapp ?? undefined,
+    email: row.email,
+    specialties: parseJsonArray(row.specialties),
+    languages: parseJsonArray(row.languages),
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -170,7 +294,7 @@ const STUB_POSTS: BlogPost[] = IS_DEV ? [
 ] : [];
 
 // ---------------------------------------------------------------------------
-// Row → domain mappers
+// Row → domain mappers (direct MySQL mode)
 // ---------------------------------------------------------------------------
 type ListingRow = RowDataPacket & {
   id: number;
@@ -345,6 +469,10 @@ function matchesFilters(l: Listing, f: ListingFilters): boolean {
 }
 
 export async function getFeaturedListings(limit = 6): Promise<Listing[]> {
+  if (useApi()) {
+    const rows = await apiFetch<ApiListingRow[]>("featured_listings", { limit });
+    return rows.map(mapApiListing);
+  }
   if (useStubs()) {
     return STUB_LISTINGS.filter((l) => l.featured).slice(0, limit);
   }
@@ -364,6 +492,21 @@ export async function getListings(
   opts: ListingFilters & { first?: number } = {},
 ): Promise<Listing[]> {
   const page = Math.max(1, opts.page ?? 1);
+  if (useApi()) {
+    const rows = await apiFetch<ApiListingRow[]>("listings", {
+      q: opts.q,
+      city: opts.city,
+      type: opts.type,
+      minPrice: opts.minPrice,
+      maxPrice: opts.maxPrice,
+      bedrooms: opts.bedrooms,
+      status: opts.status,
+      amenities: opts.amenities,
+      first: opts.first,
+      page,
+    });
+    return rows.map(mapApiListing);
+  }
   if (useStubs()) {
     const filtered = STUB_LISTINGS.filter((l) => matchesFilters(l, opts));
     const limit = opts.first ?? PAGE_SIZE;
@@ -402,6 +545,19 @@ export async function getListings(
 }
 
 export async function getListingCount(opts: ListingFilters = {}): Promise<number> {
+  if (useApi()) {
+    const res = await apiFetch<{ count: number }>("listing_count", {
+      q: opts.q,
+      city: opts.city,
+      type: opts.type,
+      minPrice: opts.minPrice,
+      maxPrice: opts.maxPrice,
+      bedrooms: opts.bedrooms,
+      status: opts.status,
+      amenities: opts.amenities,
+    });
+    return res.count;
+  }
   if (useStubs()) return STUB_LISTINGS.filter((l) => matchesFilters(l, opts)).length;
   const where: string[] = [];
   const params: ParamValue[] = [];
@@ -431,6 +587,10 @@ export async function getListingCount(opts: ListingFilters = {}): Promise<number
 }
 
 export async function getListingBySlug(slug: string): Promise<Listing | null> {
+  if (useApi()) {
+    const row = await apiFetch<ApiListingRow | null>("listing_by_slug", { slug });
+    return row ? mapApiListing(row) : null;
+  }
   if (useStubs()) return STUB_LISTINGS.find((l) => l.slug === slug) ?? null;
   const rows = await query<ListingRow>(
     "SELECT * FROM listings WHERE slug = ? LIMIT 1",
@@ -441,6 +601,9 @@ export async function getListingBySlug(slug: string): Promise<Listing | null> {
 }
 
 export async function getListingSlugs(): Promise<string[]> {
+  if (useApi()) {
+    return apiFetch<string[]>("listing_slugs");
+  }
   if (useStubs()) return STUB_LISTINGS.map((l) => l.slug);
   const rows = await query<RowDataPacket & { slug: string }>(
     "SELECT slug FROM listings ORDER BY date_posted DESC LIMIT 1000",
@@ -453,6 +616,11 @@ export async function getListingFacets(): Promise<{
   amenities: string[];
   propertyTypes: string[];
 }> {
+  if (useApi()) {
+    return apiFetch<{ cities: string[]; amenities: string[]; propertyTypes: string[] }>(
+      "listing_facets",
+    );
+  }
   if (useStubs()) {
     const cities = new Set<string>();
     const amenities = new Set<string>();
@@ -493,6 +661,10 @@ export async function getListingFacets(): Promise<{
 // Agents
 // ---------------------------------------------------------------------------
 export async function getAgents(): Promise<Agent[]> {
+  if (useApi()) {
+    const rows = await apiFetch<ApiAgentRow[]>("agents");
+    return rows.map(mapApiAgent);
+  }
   if (useStubs()) return STUB_AGENTS;
   const rows = await query<AgentRow>(
     "SELECT * FROM agents ORDER BY id ASC LIMIT 100",
@@ -501,6 +673,10 @@ export async function getAgents(): Promise<Agent[]> {
 }
 
 export async function getAgentBySlug(slug: string): Promise<Agent | null> {
+  if (useApi()) {
+    const row = await apiFetch<ApiAgentRow | null>("agent_by_slug", { slug });
+    return row ? mapApiAgent(row) : null;
+  }
   if (useStubs()) return STUB_AGENTS.find((a) => a.slug === slug) ?? null;
   const rows = await query<AgentRow>(
     "SELECT * FROM agents WHERE slug = ? LIMIT 1",
@@ -513,6 +689,10 @@ export async function getAgentBySlug(slug: string): Promise<Agent | null> {
 // Blog posts
 // ---------------------------------------------------------------------------
 export async function getBlogPosts(limit = 12): Promise<BlogPost[]> {
+  if (useApi()) {
+    const rows = await apiFetch<ApiPostRow[]>("blog_posts", { limit });
+    return rows.map(mapApiPost);
+  }
   if (useStubs()) return STUB_POSTS.slice(0, limit);
   const safeLimit = Math.max(1, Math.min(Math.trunc(limit), 100));
   const rows = await query<PostRow>(
@@ -522,6 +702,10 @@ export async function getBlogPosts(limit = 12): Promise<BlogPost[]> {
 }
 
 export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> {
+  if (useApi()) {
+    const row = await apiFetch<ApiPostRow | null>("blog_post_by_slug", { slug });
+    return row ? mapApiPost(row) : null;
+  }
   if (useStubs()) return STUB_POSTS.find((p) => p.slug === slug) ?? null;
   const rows = await query<PostRow>(
     "SELECT * FROM posts WHERE slug = ? LIMIT 1",
@@ -531,11 +715,8 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> 
 }
 
 // ---------------------------------------------------------------------------
-// Pages
-// In the WP architecture this came from wp_posts of post_type=page. After the
-// rebuild, static pages (/about, /contact, /terms, /privacy, /buyers-guide,
-// etc.) are authored directly in `src/app/**` as React. Returning null here
-// lets `<WpContentPage>` fall back to its built-in copy.
+// Pages — static pages are authored in src/app/** as React; returning null
+// lets <WpContentPage> fall back to its built-in copy.
 // ---------------------------------------------------------------------------
 export async function getPageBySlug(_slug: string): Promise<{ title: string; content: string } | null> {
   return null;

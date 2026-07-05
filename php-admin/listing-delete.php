@@ -16,11 +16,11 @@ $listing = $stmt->fetch();
 
 if (!$listing) {
     flash('Listing not found.');
-    header('Location: /'); exit;
+    header('Location: /listings.php'); exit;
 }
 
 // listing_images cascade-deletes via FK constraint
 db()->prepare('DELETE FROM listings WHERE id = ?')->execute([$id]);
 
 flash('"' . $listing['title'] . '" has been deleted.');
-header('Location: /');
+header('Location: /listings.php');

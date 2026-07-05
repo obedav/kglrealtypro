@@ -158,7 +158,10 @@ render_header('Dashboard');
     <div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
             <h2 style="margin:0">Recent Listings</h2>
-            <a href="/listing-edit.php" class="btn btn-sm">+ Add</a>
+            <div style="display:flex;gap:6px">
+                <a href="/listings.php" class="btn btn-sm">View all</a>
+                <a href="/listing-edit.php" class="btn btn-sm">+ Add</a>
+            </div>
         </div>
         <div class="table-wrap">
             <table>
