@@ -29,6 +29,28 @@ async function timed<T>(fn: () => Promise<T>): Promise<{ value: T | null; latenc
   }
 }
 
+async function checkDataApi(): Promise<Check> {
+  const url = (process.env.DATA_API_URL ?? "").replace(/\/$/, "");
+  const token = process.env.DATA_API_TOKEN ?? "";
+  if (!url || !token) {
+    return { status: "missing", detail: `DATA_API_URL=${url ? "set" : "missing"} DATA_API_TOKEN=${token ? "set" : "missing"}` };
+  }
+  const testUrl = `${url}?action=featured_listings&limit=1`;
+  const { value, latency_ms, error } = await timed(async () => {
+    const res = await fetch(testUrl, {
+      headers: { "X-Data-Token": token },
+      signal: AbortSignal.timeout(8000),
+      cache: "no-store",
+    });
+    const text = await res.text();
+    if (!res.ok) throw new Error(`HTTP ${res.status}: ${text.slice(0, 120)}`);
+    const json = JSON.parse(text) as unknown;
+    return { count: Array.isArray(json) ? json.length : -1, raw: text.slice(0, 200) };
+  });
+  if (error) return { status: "down", latency_ms, detail: error };
+  return { status: "ok", latency_ms, detail: `returned ${value?.count} listing(s)` };
+}
+
 async function checkWpGraphQL(): Promise<Check> {
   const endpoint = process.env.WP_GRAPHQL_ENDPOINT;
   if (!endpoint) return { status: "missing", detail: "WP_GRAPHQL_ENDPOINT not set" };
@@ -74,7 +96,7 @@ function checkEnv(key: string): Check {
 }
 
 export async function GET(_req: NextRequest): Promise<Response> {
-  const [wpGraphQL, wpRest] = await Promise.all([checkWpGraphQL(), checkWpRest()]);
+  const [wpGraphQL, wpRest, dataApi] = await Promise.all([checkWpGraphQL(), checkWpRest(), checkDataApi()]);
   const anthropic = checkEnv("ANTHROPIC_API_KEY");
   const resend = checkEnv("RESEND_API_KEY");
   const turnstile = process.env.TURNSTILE_SECRET_KEY
@@ -95,6 +117,7 @@ export async function GET(_req: NextRequest): Promise<Response> {
     timestamp: new Date().toISOString(),
     site_url: process.env.NEXT_PUBLIC_SITE_URL ?? null,
     checks: {
+      data_api: dataApi,
       wp_graphql: wpGraphQL,
       wp_rest: wpRest,
       wp_lead_writer: wpLeadWriter,
