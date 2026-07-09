@@ -3,11 +3,14 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
+      { protocol: "https", hostname: "admin.kglrealtypro.com", pathname: "/uploads/**" },
+      { protocol: "http",  hostname: "admin.kglrealtypro.com", pathname: "/uploads/**" },
       { protocol: "https", hostname: "cms.kglrealtypro.com" },
       { protocol: "https", hostname: "res.cloudinary.com" },
       { protocol: "https", hostname: "imagedelivery.net" },
     ],
     formats: ["image/avif", "image/webp"],
+    minimumCacheTTL: 2592000,
   },
   // Preserve SEO equity from the old site's per-city URLs. Each redirect maps a
   // top-level city path to the filtered listings view. Nigerian cities: 301

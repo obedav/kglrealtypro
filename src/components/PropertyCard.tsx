@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { memo, useState } from "react";
 import { useFavourite } from "@/lib/use-favourite";
-import { ArrowUpRight, Bath, BedDouble, Heart, MapPin, Maximize2 } from "lucide-react";
+import { ArrowUpRight, Bath, BedDouble, Building2, Heart, MapPin, Maximize2 } from "lucide-react";
 import { PriceDisplay } from "@/components/PriceDisplay";
 import { cn } from "@/lib/utils";
 import type { Listing } from "@/types";
@@ -48,14 +48,14 @@ export const PropertyCard = memo(function PropertyCard({
   featured = false,
 }: PropertyCardProps) {
   const { isFav, toggle: toggleFav } = useFavourite(listing.id);
-  const [imgLoaded, setImgLoaded]    = useState(false);
-  const [hovered,   setHovered]      = useState(false);
-
   const unavailable    = listing.status !== "available";
-  const showJustListed = !unavailable && isRecent(listing.datePosted);
-  const timeAgo        = relativeTime(listing.datePosted);
   const hasGallery     = listing.gallery.length > 0;
   const hasHoverSwap   = !unavailable && listing.gallery.length > 1;
+  const [imgLoaded, setImgLoaded]    = useState(!hasGallery);
+  const [hovered,   setHovered]      = useState(false);
+
+  const showJustListed = !unavailable && isRecent(listing.datePosted);
+  const timeAgo        = relativeTime(listing.datePosted);
 
   return (
     <Link
@@ -75,6 +75,21 @@ export const PropertyCard = memo(function PropertyCard({
         <div className="absolute inset-0 z-10 animate-pulse bg-gradient-to-br from-muted via-muted-foreground/5 to-muted" />
       )}
 
+      {/* ── NO-IMAGE PLACEHOLDER ── */}
+      {!hasGallery && (
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-800 via-slate-900 to-slate-950">
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 opacity-[0.04]"
+            style={{ backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)", backgroundSize: "22px 22px" }}
+          />
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+            <Building2 size={40} className="text-white/10" aria-hidden="true" />
+            <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-white/20">No photo yet</p>
+          </div>
+        </div>
+      )}
+
       {/* ── IMAGES (full bleed) ── */}
       {hasGallery && (
         <>
@@ -83,6 +98,7 @@ export const PropertyCard = memo(function PropertyCard({
             alt={listing.title}
             fill
             priority={priority}
+            quality={85}
             sizes={
               featured
                 ? "(min-width: 1024px) 66vw, 100vw"
@@ -92,6 +108,7 @@ export const PropertyCard = memo(function PropertyCard({
               "object-cover transition-all duration-700 ease-out will-change-transform",
               "group-hover:scale-105 motion-reduce:group-hover:scale-100",
               hovered && hasHoverSwap ? "opacity-0" : "opacity-100",
+              !imgLoaded ? "opacity-0" : "",
               "motion-reduce:transition-none"
             )}
             onLoad={() => setImgLoaded(true)}
@@ -101,6 +118,7 @@ export const PropertyCard = memo(function PropertyCard({
               src={listing.gallery[1]}
               alt=""
               fill
+              quality={80}
               sizes="(min-width: 1024px) 33vw, 100vw"
               className={cn(
                 "object-cover transition-opacity duration-700 ease-out",
