@@ -20,6 +20,7 @@ import { PriceDisplay } from "@/components/PriceDisplay";
 import { Reveal } from "@/components/Reveal";
 import { getListingBySlug, getListingSlugs } from "@/lib/data";
 import { sanitizeListingHtml } from "@/lib/sanitize";
+import { ScheduleMeetingForm } from "@/components/ScheduleMeetingForm";
 
 export const revalidate = 300;
 
@@ -235,25 +236,15 @@ export default async function PropertyDetailPage({
 
           {/* Sticky sidebar */}
           <aside className="space-y-5 lg:sticky lg:top-8 lg:self-start">
-            {/* Price + CTAs */}
+            {/* Schedule Meeting card */}
             <div className="overflow-hidden rounded-2xl border bg-card shadow-sm">
               <div className="h-1 bg-gradient-to-r from-primary via-primary/60 to-transparent" />
               <div className="p-6">
-                <p className="text-[11px] uppercase tracking-widest text-muted-foreground">
-                  Asking price
-                </p>
-                <p className="mt-1 font-serif text-3xl font-bold text-primary">
-                  <PriceDisplay priceNGN={listing.priceNGN} />
-                </p>
+                <ScheduleMeetingForm listingSlug={listing.slug} />
 
-                <div className="mt-6 flex flex-col gap-3">
-                  <Button size="lg" className="w-full" asChild>
-                    <Link href={`/contact?listing=${listing.slug}`}>
-                      Request a private viewing
-                    </Link>
-                  </Button>
-                  {waNumber && (
-                    <Button size="lg" variant="outline" className="w-full gap-2" asChild>
+                {waNumber && (
+                  <div className="mt-4 border-t pt-4">
+                    <Button size="sm" variant="outline" className="w-full gap-2" asChild>
                       <a
                         href={`https://wa.me/${waNumber}?text=${encodeURIComponent(
                           `Hi, I'm interested in ${listing.title} (${listing.slug}).`,
@@ -261,11 +252,11 @@ export default async function PropertyDetailPage({
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <MessageCircle size={16} aria-hidden="true" /> WhatsApp agent
+                        <MessageCircle size={14} aria-hidden="true" /> WhatsApp agent instead
                       </a>
                     </Button>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             </div>
 
