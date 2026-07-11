@@ -13,6 +13,7 @@ $stats['leads_new'] = (int)db()->query("SELECT COUNT(*) FROM leads WHERE status=
 $stats['leads_form'] = (int)db()->query("SELECT COUNT(*) FROM leads WHERE source='form'")->fetchColumn();
 $stats['tours']    = (int)db()->query("SELECT COUNT(*) FROM tour_requests WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)")->fetchColumn();
 $stats['posts']    = (int)db()->query("SELECT COUNT(*) FROM posts")->fetchColumn();
+$stats['investments'] = (int)db()->query("SELECT COUNT(*) FROM investment_opportunities WHERE status='available'")->fetchColumn();
 
 // Recent leads (last 8)
 $recent_leads = db()->query(
@@ -90,6 +91,16 @@ render_header('Dashboard');
         <div class="stat-value"><?= $stats['posts'] ?></div>
         <div class="stat-label">Blog Posts</div>
     </div>
+
+    <div class="stat-card">
+        <div class="stat-icon stat-icon-green">
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941"/>
+            </svg>
+        </div>
+        <div class="stat-value"><?= $stats['investments'] ?></div>
+        <div class="stat-label">Active Investments</div>
+    </div>
 </div>
 
 <!-- Quick actions -->
@@ -105,6 +116,12 @@ render_header('Dashboard');
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
         </svg>
         New Blog Post
+    </a>
+    <a href="/investment-edit.php" class="btn">
+        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+        </svg>
+        New Investment
     </a>
     <a href="/leads.php" class="btn">View All Leads</a>
     <a href="/tours.php" class="btn">View Tour Requests</a>

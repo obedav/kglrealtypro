@@ -264,6 +264,67 @@ try {
             json_out($row ?: null);
         }
 
+        // ── Investment opportunities ───────────────────────────────────────────
+
+        case 'investments': {
+            $status = safe_str($_GET['status'] ?? null);
+            $where  = '';
+            $params = [];
+            if ($status !== null && in_array($status, ['available', 'sold_out', 'coming_soon'], true)) {
+                $where    = 'WHERE io.status = ?';
+                $params[] = $status;
+            }
+            $limit  = safe_int($_GET['limit'] ?? null, 1, 200, 50);
+            $stmt   = db()->prepare(
+                "SELECT io.*,
+                        (SELECT url FROM investment_images ii WHERE ii.investment_id = io.id ORDER BY ii.position ASC LIMIT 1) AS cover_image
+                   FROM investment_opportunities io
+                   $where
+                   ORDER BY io.featured DESC, io.date_posted DESC
+                   LIMIT $limit"
+            );
+            $stmt->execute($params);
+            json_out($stmt->fetchAll());
+        }
+
+        case 'featured_investments': {
+            $limit = safe_int($_GET['limit'] ?? null, 1, 50, 6);
+            $stmt  = db()->query(
+                "SELECT io.*,
+                        (SELECT url FROM investment_images ii WHERE ii.investment_id = io.id ORDER BY ii.position ASC LIMIT 1) AS cover_image
+                   FROM investment_opportunities io
+                   WHERE io.featured = 1 AND io.status = 'available'
+                   ORDER BY io.date_posted DESC LIMIT $limit"
+            );
+            json_out($stmt->fetchAll());
+        }
+
+        case 'investment_by_slug': {
+            $slug = safe_str($_GET['slug'] ?? null, 160);
+            if ($slug === null) json_out(['error' => 'missing slug'], 400);
+            $stmt = db()->prepare(
+                "SELECT io.*,
+                        (SELECT url FROM investment_images ii WHERE ii.investment_id = io.id ORDER BY ii.position ASC LIMIT 1) AS cover_image
+                   FROM investment_opportunities io
+                   WHERE io.slug = ? LIMIT 1"
+            );
+            $stmt->execute([$slug]);
+            $row = $stmt->fetch();
+            if (!$row) { json_out(null); }
+            // Attach full gallery
+            $imgs = db()->prepare("SELECT url FROM investment_images WHERE investment_id = ? ORDER BY position ASC");
+            $imgs->execute([(int)$row['id']]);
+            $row['gallery'] = $imgs->fetchAll(PDO::FETCH_COLUMN, 0);
+            json_out($row);
+        }
+
+        case 'investment_slugs': {
+            $rows = db()->query(
+                "SELECT slug FROM investment_opportunities ORDER BY date_posted DESC LIMIT 500"
+            )->fetchAll(PDO::FETCH_COLUMN, 0);
+            json_out(array_values($rows));
+        }
+
         default:
             json_out(['error' => 'unknown action'], 400);
     }

@@ -48,6 +48,34 @@ export type BlogPost = {
   categories: string[];
 };
 
+export type InvestmentStatus = "available" | "sold_out" | "coming_soon";
+
+export type InvestmentOpportunity = {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  description: string;
+  category?: string;
+  locationDetail?: string;
+  city: string;
+  country: string;
+  priceNGN: number;
+  expectedRoiPct?: number;
+  landSize?: string;
+  unitsAvailable?: number;
+  paymentPlan?: string;
+  timeline?: string;
+  titleType?: string;
+  status: InvestmentStatus;
+  featured: boolean;
+  coverImage?: string;
+  gallery: string[];
+  datePosted: string;
+  seoTitle?: string;
+  metaDescription?: string;
+};
+
 export type LeadSource = "concierge" | "form" | "whatsapp" | "phone" | "referral";
 export type LeadStatus = "new" | "qualified" | "contacted" | "tour_booked" | "won" | "lost";
 

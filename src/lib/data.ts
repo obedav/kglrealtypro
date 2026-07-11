@@ -7,7 +7,7 @@
 
 import type { RowDataPacket } from "mysql2";
 import { isDbConfigured, query, type ParamValue } from "@/lib/db";
-import type { Agent, BlogPost, Listing, ListingStatus } from "@/types";
+import type { Agent, BlogPost, Listing, ListingStatus, InvestmentOpportunity, InvestmentStatus } from "@/types";
 
 // ---------------------------------------------------------------------------
 // Mode
@@ -720,4 +720,128 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> 
 // ---------------------------------------------------------------------------
 export async function getPageBySlug(_slug: string): Promise<{ title: string; content: string } | null> {
   return null;
+}
+
+// ---------------------------------------------------------------------------
+// Investment opportunities
+// ---------------------------------------------------------------------------
+
+type ApiInvestmentRow = {
+  id: number;
+  slug: string;
+  title: string;
+  excerpt: string;
+  description: string;
+  category: string | null;
+  location_detail: string | null;
+  city: string;
+  country: string;
+  price_ngn: string | number;
+  expected_roi_pct: string | number | null;
+  land_size: string | null;
+  units_available: number | null;
+  payment_plan: string | null;
+  timeline: string | null;
+  title_type: string | null;
+  status: InvestmentStatus;
+  featured: 0 | 1;
+  cover_image: string | null;
+  gallery?: string[];
+  date_posted: string;
+  seo_title: string | null;
+  meta_description: string | null;
+};
+
+function mapApiInvestment(row: ApiInvestmentRow): InvestmentOpportunity {
+  return {
+    id: String(row.id),
+    slug: row.slug,
+    title: row.title,
+    excerpt: row.excerpt,
+    description: row.description,
+    category: row.category ?? undefined,
+    locationDetail: row.location_detail ?? undefined,
+    city: row.city,
+    country: row.country,
+    priceNGN: Number(row.price_ngn),
+    expectedRoiPct: row.expected_roi_pct != null ? Number(row.expected_roi_pct) : undefined,
+    landSize: row.land_size ?? undefined,
+    unitsAvailable: row.units_available ?? undefined,
+    paymentPlan: row.payment_plan ?? undefined,
+    timeline: row.timeline ?? undefined,
+    titleType: row.title_type ?? undefined,
+    status: row.status,
+    featured: Boolean(row.featured),
+    coverImage: row.cover_image ?? undefined,
+    gallery: row.gallery ?? (row.cover_image ? [row.cover_image] : []),
+    datePosted: String(row.date_posted),
+    seoTitle: row.seo_title ?? undefined,
+    metaDescription: row.meta_description ?? undefined,
+  };
+}
+
+export async function getInvestments(status?: InvestmentStatus): Promise<InvestmentOpportunity[]> {
+  if (useApi()) {
+    const rows = await apiFetch<ApiInvestmentRow[]>("investments", status ? { status } : {});
+    return rows.map(mapApiInvestment);
+  }
+  if (useStubs()) return [];
+  const where = status ? "WHERE status = ?" : "";
+  const params = status ? [status] : [];
+  const rows = await query<RowDataPacket & ApiInvestmentRow>(
+    `SELECT io.*,
+            (SELECT url FROM investment_images ii WHERE ii.investment_id = io.id ORDER BY ii.position ASC LIMIT 1) AS cover_image
+       FROM investment_opportunities io ${where}
+       ORDER BY io.featured DESC, io.date_posted DESC LIMIT 200`,
+    params,
+  );
+  return rows.map(mapApiInvestment);
+}
+
+export async function getFeaturedInvestments(limit = 6): Promise<InvestmentOpportunity[]> {
+  if (useApi()) {
+    const rows = await apiFetch<ApiInvestmentRow[]>("featured_investments", { limit });
+    return rows.map(mapApiInvestment);
+  }
+  if (useStubs()) return [];
+  const safeLimit = Math.max(1, Math.min(Math.trunc(limit), 50));
+  const rows = await query<RowDataPacket & ApiInvestmentRow>(
+    `SELECT io.*,
+            (SELECT url FROM investment_images ii WHERE ii.investment_id = io.id ORDER BY ii.position ASC LIMIT 1) AS cover_image
+       FROM investment_opportunities io
+       WHERE io.featured = 1 AND io.status = 'available'
+       ORDER BY io.date_posted DESC LIMIT ${safeLimit}`,
+  );
+  return rows.map(mapApiInvestment);
+}
+
+export async function getInvestmentBySlug(slug: string): Promise<InvestmentOpportunity | null> {
+  if (useApi()) {
+    const row = await apiFetch<ApiInvestmentRow | null>("investment_by_slug", { slug });
+    return row ? mapApiInvestment(row) : null;
+  }
+  if (useStubs()) return null;
+  const rows = await query<RowDataPacket & ApiInvestmentRow>(
+    `SELECT io.*,
+            (SELECT url FROM investment_images ii WHERE ii.investment_id = io.id ORDER BY ii.position ASC LIMIT 1) AS cover_image
+       FROM investment_opportunities io WHERE io.slug = ? LIMIT 1`,
+    [slug],
+  );
+  if (!rows[0]) return null;
+  const inv = rows[0];
+  const imgs = await query<RowDataPacket & { url: string }>(
+    "SELECT url FROM investment_images WHERE investment_id = ? ORDER BY position ASC",
+    [inv.id],
+  );
+  inv.gallery = imgs.map((r) => r.url);
+  return mapApiInvestment(inv);
+}
+
+export async function getInvestmentSlugs(): Promise<string[]> {
+  if (useApi()) return apiFetch<string[]>("investment_slugs");
+  if (useStubs()) return [];
+  const rows = await query<RowDataPacket & { slug: string }>(
+    "SELECT slug FROM investment_opportunities ORDER BY date_posted DESC LIMIT 500",
+  );
+  return rows.map((r) => r.slug);
 }

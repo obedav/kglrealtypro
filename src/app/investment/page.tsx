@@ -1,10 +1,15 @@
 import Link from "next/link";
-import { ArrowRight, TrendingUp, Globe, ShieldCheck, BarChart3, Briefcase } from "lucide-react";
+import Image from "next/image";
+import { ArrowRight, TrendingUp, Globe, ShieldCheck, BarChart3, Briefcase, MapPin, Percent, Layers } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ConciergeChat } from "@/components/ConciergeChat";
 import { PageHero } from "@/components/PageHero";
 import { Reveal } from "@/components/Reveal";
+import { getInvestments } from "@/lib/data";
+import type { InvestmentOpportunity } from "@/types";
+
+export const revalidate = 300;
 
 export const metadata = {
   title: "Real Estate Investment",
@@ -41,7 +46,109 @@ const STATS = [
   { value: "100%",  label: "Title-verified assets"  },
 ];
 
-export default function InvestmentPage() {
+function statusBadge(status: InvestmentOpportunity["status"]) {
+  const map = {
+    available:   { label: "Available",    cls: "bg-emerald-500/15 text-emerald-600" },
+    coming_soon: { label: "Coming Soon",  cls: "bg-amber-500/15 text-amber-600" },
+    sold_out:    { label: "Sold Out",     cls: "bg-rose-500/15 text-rose-600" },
+  } as const;
+  const { label, cls } = map[status];
+  return (
+    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${cls}`}>
+      {label}
+    </span>
+  );
+}
+
+function InvestmentCard({ inv }: { inv: InvestmentOpportunity }) {
+  return (
+    <Reveal>
+      <Link
+        href={`/investment/${inv.slug}`}
+        className="group flex h-full flex-col overflow-hidden rounded-2xl border bg-card shadow-sm transition hover:shadow-md"
+      >
+        {/* Cover image */}
+        <div className="relative aspect-[16/9] overflow-hidden bg-muted">
+          {inv.coverImage ? (
+            <Image
+              src={inv.coverImage}
+              alt={inv.title}
+              fill
+              className="object-cover transition duration-500 group-hover:scale-105"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center">
+              <BarChart3 size={40} className="text-muted-foreground/30" />
+            </div>
+          )}
+          {inv.category && (
+            <div className="absolute left-3 top-3">
+              <span className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
+                {inv.category}
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Body */}
+        <div className="flex flex-1 flex-col p-5">
+          <div className="mb-2 flex items-start justify-between gap-2">
+            <h3 className="font-serif text-lg font-semibold leading-snug group-hover:text-primary transition-colors">
+              {inv.title}
+            </h3>
+            {statusBadge(inv.status)}
+          </div>
+
+          {(inv.locationDetail || inv.city) && (
+            <p className="mb-3 flex items-center gap-1.5 text-xs text-muted-foreground">
+              <MapPin size={12} className="shrink-0" />
+              {inv.locationDetail ?? `${inv.city}, ${inv.country}`}
+            </p>
+          )}
+
+          <p className="mb-4 flex-1 text-sm leading-relaxed text-muted-foreground line-clamp-3">
+            {inv.excerpt}
+          </p>
+
+          {/* Key figures */}
+          <div className="mt-auto grid grid-cols-2 gap-3 border-t pt-4">
+            <div>
+              <p className="text-xs text-muted-foreground">From</p>
+              <p className="font-serif text-base font-bold text-primary">
+                ₦{inv.priceNGN.toLocaleString()}
+              </p>
+            </div>
+            {inv.expectedRoiPct != null && (
+              <div className="text-right">
+                <p className="text-xs text-muted-foreground">Expected ROI</p>
+                <p className="flex items-center justify-end gap-1 font-serif text-base font-bold text-emerald-600">
+                  <Percent size={13} />
+                  {inv.expectedRoiPct}%
+                </p>
+              </div>
+            )}
+            {inv.landSize && (
+              <div className={inv.expectedRoiPct != null ? "col-span-2" : "col-span-1"}>
+                <p className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <Layers size={11} /> {inv.landSize}
+                </p>
+              </div>
+            )}
+          </div>
+
+          <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-primary">
+            View details <ArrowRight size={14} />
+          </span>
+        </div>
+      </Link>
+    </Reveal>
+  );
+}
+
+export default async function InvestmentPage() {
+  const opportunities = await getInvestments("available");
+
   return (
     <>
       <Header />
@@ -69,8 +176,40 @@ export default function InvestmentPage() {
           </div>
         </section>
 
+        {/* ── Live investment opportunities ───────────────────────── */}
+        {opportunities.length > 0 && (
+          <section className="py-20">
+            <div className="container">
+              <Reveal>
+                <div className="mx-auto max-w-2xl text-center">
+                  <div className="flex items-center justify-center gap-3">
+                    <span className="h-px w-8 bg-primary" aria-hidden="true" />
+                    <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">
+                      Current opportunities
+                    </p>
+                    <span className="h-px w-8 bg-primary" aria-hidden="true" />
+                  </div>
+                  <h2 className="mt-4 font-serif text-3xl font-semibold md:text-4xl">
+                    Available investments
+                  </h2>
+                  <p className="mt-4 text-muted-foreground">
+                    Title-verified, due-diligence-cleared opportunities — land, off-plan, and
+                    buy-to-let across Nigeria, the UAE, and the UK.
+                  </p>
+                </div>
+              </Reveal>
+
+              <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {opportunities.map((inv) => (
+                  <InvestmentCard key={inv.id} inv={inv} />
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* Advisory pillars */}
-        <section className="py-20">
+        <section className={opportunities.length > 0 ? "border-t py-20 bg-muted/20" : "py-20"}>
           <div className="container">
             <Reveal>
               <div className="mx-auto max-w-2xl text-center">
