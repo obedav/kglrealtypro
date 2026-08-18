@@ -129,9 +129,40 @@ CREATE TABLE IF NOT EXISTS posts (
   author_name        VARCHAR(120) NOT NULL DEFAULT 'KGL Realty Pro',
   featured_image_url VARCHAR(500) DEFAULT NULL,
   categories         JSON NOT NULL,
+  -- SEO — core
+  seo_title                 VARCHAR(255) DEFAULT NULL,
+  meta_description          VARCHAR(500) DEFAULT NULL,
+  focus_keyword             VARCHAR(255) DEFAULT NULL,
+  og_image_url              VARCHAR(500) DEFAULT NULL,
+  featured_image_alt        VARCHAR(255) DEFAULT NULL,
+  -- SEO — keywords
+  secondary_keywords        TEXT DEFAULT NULL,
+  long_tail_keywords        TEXT DEFAULT NULL,
+  low_competition_keywords  TEXT DEFAULT NULL,
+  buyer_intent_keywords     TEXT DEFAULT NULL,
+  internal_links            TEXT DEFAULT NULL,
+  -- SEO — social
+  social_title              VARCHAR(255) DEFAULT NULL,
+  social_description        TEXT DEFAULT NULL,
+  -- SEO — technical
+  canonical_url             VARCHAR(500) DEFAULT NULL,
+  robots_meta               VARCHAR(50) NOT NULL DEFAULT 'index,follow',
+  schema_type               VARCHAR(50) NOT NULL DEFAULT 'BlogPosting',
   date_posted        DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   date_updated       DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   INDEX idx_date (date_posted)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS post_images (
+  id       INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  post_id  INT UNSIGNED NOT NULL,
+  url      VARCHAR(500) NOT NULL,
+  alt      VARCHAR(255) DEFAULT NULL,
+  caption  VARCHAR(500) DEFAULT NULL,
+  position SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+  INDEX idx_post (post_id, position),
+  CONSTRAINT fk_post_images_post
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------------------------
@@ -164,8 +195,11 @@ CREATE TABLE IF NOT EXISTS tour_requests (
   phone                 VARCHAR(40)  NOT NULL,
   email                 VARCHAR(120) DEFAULT NULL,
   notes                 TEXT DEFAULT NULL,
+  status                ENUM('pending','confirmed','completed','cancelled') NOT NULL DEFAULT 'pending',
+  admin_notes           TEXT DEFAULT NULL,
   created_at            DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  INDEX idx_created_at  (created_at)
+  INDEX idx_created_at  (created_at),
+  INDEX idx_status      (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS handoff_requests (
