@@ -7,8 +7,8 @@ import { Footer } from "@/components/Footer";
 import { SearchFilters } from "@/components/search/SearchFilters";
 import { getListingFacets, getListings, getListingCount } from "@/lib/data";
 
+export const dynamic = "force-dynamic";
 export const metadata = { title: "Properties" };
-export const revalidate = 300;
 
 const PAGE_SIZE = 24;
 
