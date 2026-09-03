@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { PropertyCard } from "@/components/PropertyCard";
 import { ConciergeChat } from "@/components/ConciergeChat";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -9,6 +8,7 @@ import { Reveal } from "@/components/Reveal";
 import { HeroSearch } from "@/components/HeroSearch";
 import { WhatsAppFab } from "@/components/WhatsAppFab";
 import { getFeaturedListings, getListingFacets } from "@/lib/data";
+import { FeaturedListingsGrid } from "@/components/FeaturedListingsGrid";
 import { Globe, TrendingUp, Briefcase, Home as HomeIcon, ArrowRight, ChevronDown, Phone, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CONTACT } from "@/lib/constants";
@@ -71,10 +71,10 @@ export default async function HomePage() {
         <HeroSearch cities={facets.cities} />
 
         {/* Featured listings */}
-        <section className="py-16 md:py-24">
+        <section className="border-t bg-muted/30 py-20 md:py-28">
           <div className="container">
             <Reveal>
-              <div className="mb-10 flex items-end justify-between gap-6">
+              <div className="mb-8 flex items-end justify-between gap-6">
                 <div>
                   <div className="flex items-center gap-3">
                     <span className="h-px w-8 bg-primary" aria-hidden="true" />
@@ -86,7 +86,7 @@ export default async function HomePage() {
                     Featured listings
                   </h2>
                   <p className="mt-2 text-sm text-muted-foreground">
-                    Hand-picked from our current portfolio across Lagos, Abuja, Dubai &amp; London.
+                    {featured.length} hand-picked propert{featured.length === 1 ? "y" : "ies"} from our current portfolio.
                   </p>
                 </div>
                 <Link
@@ -99,18 +99,7 @@ export default async function HomePage() {
               </div>
             </Reveal>
 
-            <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 sm:mx-0 sm:grid sm:snap-none sm:grid-cols-2 sm:overflow-visible sm:px-0 lg:grid-cols-3 xl:grid-cols-4">
-              {featured.map((listing, i) => (
-                <div key={listing.id} className={cn(
-                  "w-[72%] flex-shrink-0 snap-start sm:w-auto",
-                  i === 0 && "sm:col-span-2",
-                )}>
-                  <Reveal delay={i * 60} className="h-full">
-                    <PropertyCard listing={listing} priority={i < 4} featured={i === 0} />
-                  </Reveal>
-                </div>
-              ))}
-            </div>
+            <FeaturedListingsGrid listings={featured} />
           </div>
         </section>
 

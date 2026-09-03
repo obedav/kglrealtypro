@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface Props {
   images: string[];
@@ -11,6 +12,8 @@ interface Props {
 
 export function PropertyGallery({ images, title }: Props) {
   const [lightbox, setLightbox] = useState<number | null>(null);
+  const touchStartX = useRef<number | null>(null);
+  const stripRef = useRef<HTMLDivElement>(null);
 
   const close = useCallback(() => setLightbox(null), []);
   const prev = useCallback(
@@ -33,6 +36,13 @@ export function PropertyGallery({ images, title }: Props) {
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [lightbox, close, prev, next]);
+
+  // Scroll active thumbnail into view when lightbox index changes
+  useEffect(() => {
+    if (lightbox === null || !stripRef.current) return;
+    const btn = stripRef.current.querySelectorAll("button")[lightbox];
+    btn?.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
+  }, [lightbox]);
 
   if (images.length === 0) return null;
 
@@ -99,7 +109,7 @@ export function PropertyGallery({ images, title }: Props) {
           role="dialog"
           aria-modal="true"
           aria-label="Property photo gallery"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/95"
+          className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/95"
           onClick={close}
         >
           {/* Close */}
@@ -116,18 +126,31 @@ export function PropertyGallery({ images, title }: Props) {
           {images.length > 1 && (
             <button
               type="button"
-              onClick={(e) => { e.stopPropagation(); prev(); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                prev();
+              }}
               aria-label="Previous photo"
-              className="absolute left-3 z-10 rounded-full bg-white/10 p-3 text-white transition-colors hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:left-4"
+              className="absolute left-3 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white transition-colors hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:left-4"
             >
               <ChevronLeft size={24} />
             </button>
           )}
 
-          {/* Image */}
+          {/* Image with swipe support */}
           <div
-            className="relative h-[85vh] w-[92vw] max-w-5xl"
+            className="relative h-[70vh] w-[92vw] max-w-5xl"
             onClick={(e) => e.stopPropagation()}
+            onTouchStart={(e) => {
+              touchStartX.current = e.touches[0].clientX;
+            }}
+            onTouchEnd={(e) => {
+              if (touchStartX.current === null) return;
+              const dx = e.changedTouches[0].clientX - touchStartX.current;
+              touchStartX.current = null;
+              if (dx > 50) prev();
+              else if (dx < -50) next();
+            }}
           >
             <Image
               src={images[lightbox]}
@@ -143,18 +166,59 @@ export function PropertyGallery({ images, title }: Props) {
           {images.length > 1 && (
             <button
               type="button"
-              onClick={(e) => { e.stopPropagation(); next(); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                next();
+              }}
               aria-label="Next photo"
-              className="absolute right-3 z-10 rounded-full bg-white/10 p-3 text-white transition-colors hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:right-4"
+              className="absolute right-3 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white transition-colors hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:right-4"
             >
               <ChevronRight size={24} />
             </button>
           )}
 
-          {/* Counter */}
-          <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-sm text-white/70">
-            {lightbox + 1} / {images.length}
-          </p>
+          {/* Counter + thumbnail strip */}
+          {images.length > 1 && (
+            <div
+              className="mt-4 flex w-full flex-col items-center gap-3"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <p className="text-sm text-white/60">
+                {lightbox + 1} / {images.length}
+              </p>
+              <div
+                ref={stripRef}
+                className="flex max-w-[92vw] gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              >
+                {images.map((src, i) => (
+                  <button
+                    key={src}
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setLightbox(i);
+                    }}
+                    aria-label={`Go to photo ${i + 1}`}
+                    aria-current={i === lightbox ? "true" : undefined}
+                    className={cn(
+                      "relative h-14 w-14 shrink-0 overflow-hidden rounded transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white",
+                      i === lightbox
+                        ? "opacity-100 ring-2 ring-primary"
+                        : "opacity-50 hover:opacity-80",
+                    )}
+                  >
+                    <Image
+                      src={src}
+                      alt={`${title} thumbnail ${i + 1}`}
+                      fill
+                      className="object-cover"
+                      sizes="56px"
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </>

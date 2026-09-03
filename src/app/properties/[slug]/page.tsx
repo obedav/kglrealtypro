@@ -170,7 +170,7 @@ export default async function PropertyDetailPage({
         </div>
       </section>
 
-      <main className="container py-12">
+      <main className="container py-12 pb-28 lg:pb-12">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -238,7 +238,7 @@ export default async function PropertyDetailPage({
           {/* Sticky sidebar */}
           <aside className="space-y-5 lg:sticky lg:top-8 lg:self-start">
             {/* Schedule Meeting card */}
-            <div className="overflow-hidden rounded-2xl border bg-card shadow-sm">
+            <div id="schedule-viewing" className="overflow-hidden rounded-2xl border bg-card shadow-sm">
               <div className="h-1 bg-gradient-to-r from-primary via-primary/60 to-transparent" />
               <div className="p-6">
                 <ScheduleMeetingForm listingSlug={listing.slug} />
@@ -297,6 +297,19 @@ export default async function PropertyDetailPage({
           </aside>
         </div>
       </main>
+
+      {/* Mobile sticky CTA — hidden on lg+ where the sidebar is visible */}
+      <div className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-between gap-4 border-t bg-background/95 px-4 py-3 backdrop-blur-sm lg:hidden">
+        <div className="min-w-0">
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Asking price</p>
+          <p className="truncate font-serif text-lg font-bold text-primary">
+            <PriceDisplay priceNGN={listing.priceNGN} />
+          </p>
+        </div>
+        <Button asChild className="shrink-0">
+          <a href="#schedule-viewing">Request Viewing</a>
+        </Button>
+      </div>
 
       <Footer />
       <ConciergeChat listing={listing} />
