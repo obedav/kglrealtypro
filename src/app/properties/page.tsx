@@ -8,7 +8,7 @@ import { SearchFilters } from "@/components/search/SearchFilters";
 import { getListingFacets, getListings, getListingCount } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Properties" };
+export const metadata = { title: "Properties", alternates: { canonical: "/properties" } };
 
 const PAGE_SIZE = 24;
 

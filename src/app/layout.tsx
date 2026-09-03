@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next";
 import { Lato, Montserrat } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { CurrencyProvider } from "@/lib/currency-context";
+import { Analytics } from "@/components/Analytics";
 import "./globals.css";
 
 /* ------------------------------------------------------------------ */
@@ -74,9 +75,6 @@ export const metadata: Metadata = {
     // creator: "@kglrealtypro", // uncomment if you have a handle
   },
   robots: { index: true, follow: true },
-  alternates: {
-    canonical: "/",
-  },
 };
 
 /* ------------------------------------------------------------------ */
@@ -100,6 +98,7 @@ export default function RootLayout({
             {children}
           </CurrencyProvider>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );

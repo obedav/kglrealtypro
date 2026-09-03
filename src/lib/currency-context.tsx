@@ -8,23 +8,27 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { Currency } from "@/lib/fx";
+import type { Currency, FxRates } from "@/lib/fx";
+import { FALLBACK_RATES } from "@/lib/fx";
 
 const CURRENCIES: readonly Currency[] = ["NGN", "USD", "GBP", "AED"];
 const STORAGE_KEY = "kgl:currency";
 
 type CurrencyContextValue = {
   currency: Currency;
+  rates: FxRates;
   setCurrency: (c: Currency) => void;
 };
 
 const CurrencyContext = createContext<CurrencyContextValue>({
   currency: "NGN",
+  rates: FALLBACK_RATES,
   setCurrency: () => {},
 });
 
 export function CurrencyProvider({ children }: { children: ReactNode }) {
   const [currency, setCurrencyState] = useState<Currency>("NGN");
+  const [rates, setRates] = useState<FxRates>(FALLBACK_RATES);
 
   useEffect(() => {
     try {
@@ -35,6 +39,13 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
     } catch {
       // localStorage blocked (private browsing, etc.)
     }
+
+    fetch("/api/fx-rates")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data && typeof data.NGN === "number") setRates(data as FxRates);
+      })
+      .catch(() => {}); // keep FALLBACK_RATES on any error
   }, []);
 
   const setCurrency = useCallback((c: Currency) => {
@@ -47,7 +58,7 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <CurrencyContext.Provider value={{ currency, setCurrency }}>
+    <CurrencyContext.Provider value={{ currency, rates, setCurrency }}>
       {children}
     </CurrencyContext.Provider>
   );

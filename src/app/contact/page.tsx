@@ -4,30 +4,31 @@ import { Footer } from "@/components/Footer";
 import { ConciergeChat } from "@/components/ConciergeChat";
 import { PageHero } from "@/components/PageHero";
 import { ContactForm } from "@/components/ContactForm";
+import { CONTACT } from "@/lib/constants";
 
-export const metadata = { title: "Contact" };
+export const metadata = { title: "Contact", alternates: { canonical: "/contact" } };
 
 const CONTACT_ITEMS = [
   {
     Icon: Phone,
     label: "Phone",
-    value: "+234 703 814 1774",
-    href: "tel:+2347038141774",
+    value: CONTACT.phoneDisplay,
+    href: CONTACT.phoneTelHref,
     detail: "Mon – Fri, 9 am – 6 pm WAT",
   },
   {
     Icon: MessageCircle,
     label: "WhatsApp",
-    value: "+234 703 814 1774",
-    href: "https://wa.me/2347038141774",
+    value: CONTACT.phoneDisplay,
+    href: CONTACT.whatsappHref,
     detail: "Fastest response — same day",
     external: true,
   },
   {
     Icon: Mail,
     label: "Email",
-    value: "hello@kglrealtypro.com",
-    href: "mailto:hello@kglrealtypro.com",
+    value: CONTACT.emailGeneral,
+    href: `mailto:${CONTACT.emailGeneral}`,
     detail: "We reply within 4 business hours",
   },
 ];
@@ -82,9 +83,9 @@ export default async function ContactPage({
               </p>
               <p className="mt-1 text-sm leading-relaxed text-foreground">
                 KGL Realty Pro<br />
-                Suite 53, Road 5<br />
-                Ikota Shopping Complex VGC<br />
-                Lekki, Lagos State, Nigeria
+                {CONTACT.address.line1}<br />
+                {CONTACT.address.line2}<br />
+                {CONTACT.address.city}
               </p>
               <p className="mt-2 text-xs text-muted-foreground">
                 Private viewings by appointment only.

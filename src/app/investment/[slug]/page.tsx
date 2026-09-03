@@ -15,20 +15,29 @@ import type { Metadata } from "next";
 export const revalidate = 300;
 
 export async function generateStaticParams() {
-  const slugs = await getInvestmentSlugs();
-  return slugs.map((slug) => ({ slug }));
+  try {
+    const slugs = await getInvestmentSlugs();
+    return slugs.map((slug) => ({ slug }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata(
   { params }: { params: Promise<{ slug: string }> }
 ): Promise<Metadata> {
-  const { slug } = await params;
-  const inv = await getInvestmentBySlug(slug);
-  if (!inv) return {};
-  return {
-    title: inv.seoTitle ?? inv.title,
-    description: inv.metaDescription ?? inv.excerpt,
-  };
+  try {
+    const { slug } = await params;
+    const inv = await getInvestmentBySlug(slug);
+    if (!inv) return {};
+    return {
+      title: inv.seoTitle ?? inv.title,
+      description: inv.metaDescription ?? inv.excerpt,
+      alternates: { canonical: `/investment/${slug}` },
+    };
+  } catch {
+    return {};
+  }
 }
 
 function statusBadge(status: "available" | "sold_out" | "coming_soon") {

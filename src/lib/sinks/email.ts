@@ -19,6 +19,7 @@ export async function sendEmail(opts: {
   to: string | string[];
   subject: string;
   text: string;
+  html?: string;
   replyTo?: string;
 }): Promise<void> {
   const transport = makeTransport();
@@ -32,6 +33,7 @@ export async function sendEmail(opts: {
     to: Array.isArray(opts.to) ? opts.to.join(", ") : opts.to,
     subject: opts.subject,
     text: opts.text,
+    html: opts.html,
     replyTo: opts.replyTo,
   });
 }
@@ -45,6 +47,7 @@ function notifyTarget(): string[] {
 export async function notifyDutyAgent(opts: {
   subject: string;
   text: string;
+  html?: string;
   urgency?: "low" | "medium" | "high";
   replyTo?: string;
 }): Promise<void> {
@@ -53,6 +56,7 @@ export async function notifyDutyAgent(opts: {
     to: notifyTarget(),
     subject: prefix + opts.subject,
     text: opts.text,
+    html: opts.html,
     replyTo: opts.replyTo,
   });
 }

@@ -73,7 +73,7 @@ export function HeroSearch({ cities }: HeroSearchProps) {
         muted
         loop
         playsInline
-        preload="auto"
+        preload="metadata"
         src={HERO_VIDEO}
         className="absolute inset-0 z-0 h-full w-full object-cover"
         aria-hidden="true"

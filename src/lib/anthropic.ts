@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import type { NextRequest } from "next/server";
 import type { Listing } from "@/types";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 // Lazy client — avoid crashing the dev server at module load when the
 // ANTHROPIC_API_KEY isn't set yet.
@@ -173,6 +174,18 @@ type ChatRequestBody = {
  * Verify hits via usage.cache_read_input_tokens in the `final` stream event.
  */
 export async function chatRouteHandler(req: NextRequest): Promise<Response> {
+  const ip = getClientIp(req);
+  const { ok: allowed, retryAfter } = checkRateLimit(ip, 30, 10 * 60 * 1000);
+  if (!allowed) {
+    return Response.json(
+      { error: "Too many requests — please wait a moment." },
+      {
+        status: 429,
+        headers: { "Retry-After": String(retryAfter) },
+      },
+    );
+  }
+
   let body: ChatRequestBody;
   try {
     body = (await req.json()) as ChatRequestBody;
@@ -203,13 +216,10 @@ export async function chatRouteHandler(req: NextRequest): Promise<Response> {
 
   let stream;
   try {
-    stream = getAnthropic().messages.stream({
-      model,
-      max_tokens: 2048,
-      system,
-      tools: CONCIERGE_TOOLS,
-      messages: body.messages,
-    });
+    stream = getAnthropic().messages.stream(
+      { model, max_tokens: 2048, system, tools: CONCIERGE_TOOLS, messages: body.messages },
+      { signal: AbortSignal.timeout(30_000) },
+    );
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
     return Response.json({ error: msg }, { status: 503 });

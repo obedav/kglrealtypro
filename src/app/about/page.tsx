@@ -7,8 +7,9 @@ import { ConciergeChat } from "@/components/ConciergeChat";
 import { PageHero } from "@/components/PageHero";
 import { Reveal } from "@/components/Reveal";
 import { Button } from "@/components/ui/button";
+import { getAgents } from "@/lib/data";
 
-export const metadata = { title: "About Us" };
+export const metadata = { title: "About Us", alternates: { canonical: "/about" } };
 
 const VALUES = [
   { Icon: ShieldCheck, title: "Integrity first",    body: "Every listing passes a legal-title check and condition inspection before it reaches this site. We only show what we can stand behind." },
@@ -17,13 +18,13 @@ const VALUES = [
   { Icon: TrendingUp,  title: "Market intelligence", body: "We publish regular market analysis so clients can make informed decisions — not just find a property, but understand its value." },
 ];
 
-const TEAM = [
-  { name: "Mr Adekunle Moruf",         role: "CEO / Managing Director",  photo: "/images/Mr Adekunle Moruf.jpeg"     },
-  { name: "Mrs Popoola Nimotalai",     role: "Lead Consultant",          photo: "/images/Mrs Popoola Nimotalai.jpeg" },
-  { name: "Miss Oyinkansola Adekunle", role: "Sales Executive",          photo: undefined                           },
-];
-
-export default function AboutPage() {
+export default async function AboutPage() {
+  let agents: Awaited<ReturnType<typeof getAgents>> = [];
+  try {
+    agents = await getAgents();
+  } catch {
+    agents = [];
+  }
   return (
     <>
       <Header />
@@ -139,17 +140,17 @@ export default function AboutPage() {
             </Reveal>
 
             <div className="mx-auto mt-14 grid max-w-4xl gap-6 sm:grid-cols-3">
-              {TEAM.map((person, i) => {
-                const initials = person.name
+              {agents.map((agent, i) => {
+                const initials = agent.fullName
                   .replace(/^(Mr|Mrs|Miss|Ms|Dr)\.?\s+/i, "")
                   .split(" ").filter(Boolean).map((w) => w[0]).slice(0, 2).join("").toUpperCase();
                 return (
-                  <Reveal key={person.name} delay={i * 100}>
+                  <Reveal key={agent.id} delay={i * 100}>
                     <div className="group overflow-hidden rounded-2xl border bg-card shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl">
                       <div className="h-1 bg-gradient-to-r from-primary via-primary/60 to-transparent" />
                       <div className="relative aspect-[3/3.5] overflow-hidden bg-gradient-to-br from-primary/10 to-accent/20">
-                        {person.photo ? (
-                          <Image src={person.photo} alt={person.name} fill sizes="(min-width:640px) 33vw, 100vw" className="object-cover object-top transition-transform duration-500 group-hover:scale-105" />
+                        {agent.photo ? (
+                          <Image src={agent.photo} alt={agent.fullName} fill sizes="(min-width:640px) 33vw, 100vw" className="object-cover object-top transition-transform duration-500 group-hover:scale-105" />
                         ) : (
                           <div className="absolute inset-0 flex items-center justify-center">
                             <span className="font-serif text-6xl font-bold text-primary/30">{initials}</span>
@@ -158,8 +159,8 @@ export default function AboutPage() {
                         <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-card to-transparent" />
                       </div>
                       <div className="p-5">
-                        <h3 className="font-serif text-lg font-semibold">{person.name}</h3>
-                        <p className="mt-0.5 text-sm text-muted-foreground">{person.role}</p>
+                        <h3 className="font-serif text-lg font-semibold">{agent.fullName}</h3>
+                        <p className="mt-0.5 text-sm text-muted-foreground">{agent.role}</p>
                       </div>
                     </div>
                   </Reveal>

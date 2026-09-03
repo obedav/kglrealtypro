@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Facebook, Instagram, Twitter, Youtube, Phone, Mail, MapPin, ArrowRight, ArrowUp } from "lucide-react";
+import { CONTACT } from "@/lib/constants";
 
 const SOCIALS = [
   { href: "https://facebook.com/kglrealtypro",      label: "Facebook",  Icon: Facebook  },
@@ -85,11 +86,11 @@ export function Footer() {
             <ul className="mt-6 space-y-3 text-sm">
               <li>
                 <a
-                  href="tel:+2347038141774"
+                  href={CONTACT.phoneTelHref}
                   className="inline-flex items-center gap-2.5 text-white/55 transition-colors hover:text-white"
                 >
                   <Phone size={13} className="shrink-0 text-primary" />
-                  +234 703 814 1774
+                  {CONTACT.phoneDisplay}
                 </a>
               </li>
               <li>

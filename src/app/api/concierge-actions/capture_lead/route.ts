@@ -2,11 +2,17 @@ import type { NextRequest } from "next/server";
 import { CaptureLeadInput } from "@/lib/validation";
 import { saveLead } from "@/lib/sinks/db-lead";
 import { notifyDutyAgent } from "@/lib/sinks/email";
+import { leadCapturedHtml } from "@/lib/sinks/email-templates";
 import { ok, fail, parseBody, safeNotify } from "@/lib/concierge-actions";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { logger } from "@/lib/logger";
 
 export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
+  const { ok: allowed, retryAfter } = checkRateLimit(getClientIp(req), 10, 10 * 60 * 1000);
+  if (!allowed) return fail(`Too many requests. Retry in ${retryAfter}s.`, 429);
+
   const parsed = await parseBody(req, CaptureLeadInput);
   if (parsed instanceof Response) return parsed;
 
@@ -14,10 +20,20 @@ export async function POST(req: NextRequest) {
   try {
     rowId = await saveLead({ kind: "lead", payload: parsed });
   } catch (error) {
-    console.error("[capture_lead] DB save failed:", error);
+    logger.error("capture_lead/db", error);
     return fail("Could not save lead.", 502);
   }
 
+  const templateData = {
+    rowId,
+    full_name: parsed.full_name,
+    phone: parsed.phone,
+    email: parsed.email,
+    budget_ngn: parsed.budget_ngn,
+    location_preference: parsed.location_preference,
+    timeframe: parsed.timeframe,
+    interest_summary: parsed.interest_summary,
+  };
   const emailText =
     `New qualified lead (leads #${rowId})\n\n` +
     `Name: ${parsed.full_name}\n` +
@@ -33,6 +49,7 @@ export async function POST(req: NextRequest) {
       notifyDutyAgent({
         subject: `New lead — ${parsed.full_name}`,
         text: emailText,
+        html: leadCapturedHtml(templateData),
         replyTo: parsed.email,
       }),
     "capture_lead",

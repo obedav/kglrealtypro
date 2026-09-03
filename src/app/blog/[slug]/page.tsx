@@ -26,18 +26,23 @@ export async function generateMetadata({
 }: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
-  const post = await getBlogPostBySlug(slug);
-  if (!post) return {};
-  return {
-    title: post.title,
-    description: post.excerpt,
-    openGraph: {
+  try {
+    const { slug } = await params;
+    const post = await getBlogPostBySlug(slug);
+    if (!post) return {};
+    return {
       title: post.title,
       description: post.excerpt,
-      images: post.featuredImage ? [post.featuredImage] : [],
-    },
-  };
+      alternates: { canonical: `/blog/${slug}` },
+      openGraph: {
+        title: post.title,
+        description: post.excerpt,
+        images: post.featuredImage ? [post.featuredImage] : [],
+      },
+    };
+  } catch {
+    return {};
+  }
 }
 
 export default async function BlogPostPage({

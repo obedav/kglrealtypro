@@ -11,8 +11,13 @@ import { WhatsAppFab } from "@/components/WhatsAppFab";
 import { getFeaturedListings, getListingFacets } from "@/lib/data";
 import { Globe, TrendingUp, Briefcase, Home as HomeIcon, ArrowRight, ChevronDown, Phone, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { CONTACT } from "@/lib/constants";
 
 export const revalidate = 300;
+
+export const metadata = {
+  alternates: { canonical: "/" },
+};
 
 // Team captured from the live site on 2026-04-22. Editors update via the PHP
 // admin once the agents table is seeded; then swap this constant for a
@@ -464,18 +469,18 @@ export default async function HomePage() {
               <div className="space-y-3">
                 {[
                   {
-                    href: "tel:+2347038141774",
+                    href: CONTACT.phoneTelHref,
                     Icon: Phone,
                     label: "Phone",
-                    value: "+234 703 814 1774",
+                    value: CONTACT.phoneDisplay,
                     note: "Mon – Fri, 9 am – 6 pm WAT",
                     external: false,
                   },
                   {
-                    href: "https://wa.me/2347038141774",
+                    href: CONTACT.whatsappHref,
                     Icon: MessageCircle,
                     label: "WhatsApp",
-                    value: "+234 703 814 1774",
+                    value: CONTACT.phoneDisplay,
                     note: "Fastest response — same day",
                     external: true,
                   },

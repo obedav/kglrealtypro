@@ -5,10 +5,20 @@ import { MessageSquare, X, Send, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { trackEvent } from "@/lib/gtag";
 import type { Listing } from "@/types";
 
 type UiMessage = { role: "user" | "assistant"; content: string };
 type ToolUse = { id: string; name: string; input: Record<string, unknown> };
+
+type SseEvent =
+  | { type: "text"; text: string }
+  | { type: "tool_input_delta"; partial: string }
+  | { type: "tool_use_start"; id: string; name: string }
+  | { type: "stop"; stop_reason: string }
+  | { type: "final"; usage: Record<string, number>; tool_uses: ToolUse[] }
+  | { type: "done" }
+  | { type: "error"; error: string };
 
 declare global {
   interface Window {
@@ -137,9 +147,9 @@ export function ConciergeChat({ listing }: { listing?: Listing }) {
           const payload = line.slice(5).trim();
           if (!payload) continue;
 
-          let evt: { type: string; [key: string]: unknown };
+          let evt: SseEvent;
           try {
-            evt = JSON.parse(payload);
+            evt = JSON.parse(payload) as SseEvent;
           } catch {
             continue;
           }
@@ -149,32 +159,49 @@ export function ConciergeChat({ listing }: { listing?: Listing }) {
               const copy = [...prev];
               const last = copy[copy.length - 1];
               if (last && last.role === "assistant") {
-                copy[copy.length - 1] = {
-                  role: "assistant",
-                  content: last.content + String(evt.text),
-                };
+                copy[copy.length - 1] = { role: "assistant", content: last.content + evt.text };
               }
               return copy;
             });
           } else if (evt.type === "final") {
-            const uses = (evt.tool_uses as ToolUse[] | undefined) ?? [];
-            toolUses.push(...uses);
+            toolUses.push(...evt.tool_uses);
           } else if (evt.type === "error") {
-            throw new Error(String(evt.error));
+            throw new Error(evt.error);
           }
         }
       }
 
       if (toolUses.length > 0) {
-        await Promise.all(
+        const results = await Promise.allSettled(
           toolUses.map((use) =>
             fetch(`/api/concierge-actions/${use.name}`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(use.input),
-            }).catch(() => {}),
+            }).then((r) => {
+              if (!r.ok) throw new Error(`${use.name} failed: ${r.status}`);
+            }),
           ),
         );
+
+        const failures = results.filter((r) => r.status === "rejected");
+        if (failures.length > 0) {
+          console.error("[concierge] tool action failures:", failures);
+          setMessages((prev) => [
+            ...prev,
+            {
+              role: "assistant",
+              content:
+                "Note: your request was received but one step didn't save correctly. Please follow up via WhatsApp to confirm.",
+            },
+          ]);
+        }
+
+        for (const use of toolUses) {
+          if (use.name === "capture_lead") trackEvent("lead_captured", { method: "concierge" });
+          if (use.name === "request_tour") trackEvent("tour_requested", { method: "concierge" });
+          if (use.name === "handoff_to_agent") trackEvent("agent_handoff", { method: "concierge" });
+        }
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : "Something went wrong.";

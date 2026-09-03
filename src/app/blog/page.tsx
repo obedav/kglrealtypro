@@ -7,7 +7,7 @@ import { ConciergeChat } from "@/components/ConciergeChat";
 import { PageHero } from "@/components/PageHero";
 import { getBlogPosts } from "@/lib/data";
 
-export const metadata = { title: "Insights" };
+export const metadata = { title: "Insights", alternates: { canonical: "/blog" } };
 export const revalidate = 600;
 
 export default async function BlogPage() {

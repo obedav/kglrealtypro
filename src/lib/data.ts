@@ -260,6 +260,7 @@ const STUB_AGENTS: Agent[] = IS_DEV ? [
     slug: "adekunle-moruf",
     fullName: "Mr Adekunle Moruf",
     role: "CEO / Managing Director",
+    photo: "/images/Mr Adekunle Moruf.jpeg",
     bio: "<p>Adekunle leads the firm with two decades of luxury-residential experience across Lagos and Abuja.</p>",
     phone: "+2347038141774",
     whatsapp: "+2347038141774",
@@ -272,10 +273,22 @@ const STUB_AGENTS: Agent[] = IS_DEV ? [
     slug: "popoola-nimotalai",
     fullName: "Mrs Popoola Nimotalai",
     role: "Lead Consultant",
+    photo: "/images/Mrs Popoola Nimotalai.jpeg",
     bio: "<p>Nimotalai runs buyer representation end-to-end, specialising in diaspora transactions.</p>",
     phone: "+2347038141774",
     email: "hello@kglrealtypro.com",
     specialties: ["Buyer representation", "Diaspora"],
+    languages: ["English", "Yoruba"],
+  },
+  {
+    id: "stub-agent-3",
+    slug: "oyinkansola-adekunle",
+    fullName: "Miss Oyinkansola Adekunle",
+    role: "Sales Executive",
+    bio: "<p>Oyinkansola manages client relationships and property viewings across the Lagos portfolio.</p>",
+    phone: "+2347038141774",
+    email: "hello@kglrealtypro.com",
+    specialties: ["Sales", "Client relations"],
     languages: ["English", "Yoruba"],
   },
 ] : [];
@@ -715,11 +728,29 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> 
 }
 
 // ---------------------------------------------------------------------------
-// Pages — static pages are authored in src/app/** as React; returning null
-// lets <WpContentPage> fall back to its built-in copy.
+// Pages — fetches from WP REST API when WP_REST_ENDPOINT is configured.
+// Returns null to let <WpContentPage> fall back to its built-in copy.
 // ---------------------------------------------------------------------------
-export async function getPageBySlug(_slug: string): Promise<{ title: string; content: string } | null> {
-  return null;
+export async function getPageBySlug(slug: string): Promise<{ title: string; content: string } | null> {
+  const endpoint = (process.env.WP_REST_ENDPOINT ?? "").replace(/\/$/, "");
+  if (!endpoint) return null;
+
+  try {
+    const url = `${endpoint}/pages?slug=${encodeURIComponent(slug)}&_fields=title,content&per_page=1`;
+    const res = await fetch(url, {
+      next: { revalidate: 86400 },
+      headers: { "User-Agent": "KGLRealtyCMS/1.0" },
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as Array<{
+      title: { rendered: string };
+      content: { rendered: string };
+    }>;
+    if (!Array.isArray(data) || data.length === 0) return null;
+    return { title: data[0].title.rendered, content: data[0].content.rendered };
+  } catch {
+    return null;
+  }
 }
 
 // ---------------------------------------------------------------------------

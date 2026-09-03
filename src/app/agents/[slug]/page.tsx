@@ -25,13 +25,18 @@ export async function generateMetadata({
 }: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
-  const agent = await getAgentBySlug(slug);
-  if (!agent) return {};
-  return {
-    title: agent.fullName,
-    description: `${agent.role} at KGL Realty Pro. ${agent.specialties.join(", ")}.`,
-  };
+  try {
+    const { slug } = await params;
+    const agent = await getAgentBySlug(slug);
+    if (!agent) return {};
+    return {
+      title: agent.fullName,
+      description: `${agent.role} at KGL Realty Pro. ${agent.specialties.join(", ")}.`,
+      alternates: { canonical: `/agents/${slug}` },
+    };
+  } catch {
+    return {};
+  }
 }
 
 export default async function AgentDetailPage({
