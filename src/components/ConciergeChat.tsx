@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { MessageSquare, X, Send, Loader2 } from "lucide-react";
+import { MessageSquare, MessageCircle, X, Send, Loader2 } from "lucide-react";
+import { CONTACT } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -41,6 +42,31 @@ const ESCALATION_TRIGGERS = [
   "off market",
   "off-market",
 ];
+
+// Renders \n as line breaks and **bold** as <strong> — keeps the chat readable
+// without pulling in a full markdown library.
+function MessageContent({ text }: { text: string }) {
+  const lines = text.split("\n");
+  return (
+    <>
+      {lines.map((line, i) => {
+        const parts = line.split(/(\*\*[^*]+\*\*)/g);
+        return (
+          <span key={i}>
+            {parts.map((part, j) =>
+              /^\*\*[^*]+\*\*$/.test(part) ? (
+                <strong key={j}>{part.slice(2, -2)}</strong>
+              ) : (
+                part
+              ),
+            )}
+            {i < lines.length - 1 && <br />}
+          </span>
+        );
+      })}
+    </>
+  );
+}
 
 export function ConciergeChat({ listing }: { listing?: Listing }) {
   const [open, setOpen] = useState(false);
@@ -262,25 +288,51 @@ export function ConciergeChat({ listing }: { listing?: Listing }) {
                 or connect you with an agent. How can I help?
               </div>
             )}
-            {messages.map((m, i) => (
-              <div
-                key={i}
-                className={cn(
-                  "max-w-[85%] rounded-lg px-3 py-2 text-sm",
-                  m.role === "user"
-                    ? "ml-auto bg-primary text-primary-foreground"
-                    : "bg-muted",
-                )}
-              >
-                {m.content || (streaming && i === messages.length - 1 ? (
-                  <span className="inline-flex items-center gap-1 py-0.5" aria-label="Typing">
-                    <span className="typing-dot h-1.5 w-1.5 rounded-full bg-current" />
-                    <span className="typing-dot h-1.5 w-1.5 rounded-full bg-current" />
-                    <span className="typing-dot h-1.5 w-1.5 rounded-full bg-current" />
-                  </span>
-                ) : "")}
-              </div>
-            ))}
+            {(() => {
+              const lastAssistantIdx = messages.reduce(
+                (acc, m, i) => (m.role === "assistant" ? i : acc),
+                -1,
+              );
+              return messages.map((m, i) => (
+                <div
+                  key={i}
+                  className={cn(
+                    "max-w-[85%] rounded-lg px-3 py-2 text-sm",
+                    m.role === "user"
+                      ? "ml-auto bg-primary text-primary-foreground"
+                      : "bg-muted",
+                  )}
+                >
+                  {m.role === "assistant" ? (
+                    m.content ? (
+                      <>
+                        <MessageContent text={m.content} />
+                        {/* WhatsApp nudge on the latest assistant reply only */}
+                        {i === lastAssistantIdx && !streaming && (
+                          <a
+                            href={CONTACT.whatsappHref}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-2.5 inline-flex items-center gap-1.5 rounded-md bg-emerald-500/15 px-2.5 py-1 text-[11px] font-semibold text-emerald-700 transition-colors hover:bg-emerald-500/25 dark:text-emerald-400"
+                          >
+                            <MessageCircle size={11} aria-hidden="true" />
+                            Continue on WhatsApp
+                          </a>
+                        )}
+                      </>
+                    ) : streaming && i === messages.length - 1 ? (
+                      <span className="inline-flex items-center gap-1 py-0.5" aria-label="Typing">
+                        <span className="typing-dot h-1.5 w-1.5 rounded-full bg-current" />
+                        <span className="typing-dot h-1.5 w-1.5 rounded-full bg-current" />
+                        <span className="typing-dot h-1.5 w-1.5 rounded-full bg-current" />
+                      </span>
+                    ) : null
+                  ) : (
+                    m.content
+                  )}
+                </div>
+              ));
+            })()}
           </div>
 
           <form

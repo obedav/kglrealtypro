@@ -301,6 +301,16 @@ const RULES: ConciergeRule[] = [
         : `Property features vary across our portfolio. In the luxury segment, common amenities include:\n\n**Essential (Lagos/Abuja):**\n• Backup generator or solar (critical given grid instability)\n• Borehole and water storage tanks\n• Secure parking or garage\n• Perimeter fencing and intercom\n• 24/7 gated estate or onsite security\n\n**Premium add-ons:**\n• Boys Quarters (BQ/domestic staff accommodation)\n• Swimming pool and garden\n• Gym or fitness suite\n• Fibre-optic internet ready\n• Smart home systems\n\nEach listing's detail page specifies its amenities. For features on a specific property:\n\n• WhatsApp: ${WA}`,
   },
 
+  // ── Land / plots of land ─────────────────────────────────────────────────────
+  // Put before neighbourhood so "land in Arepo" catches here, not there.
+  {
+    id: "land_plots",
+    patterns: [
+      /\b(plot(s)?\s+of\s+land|land\s+(for\s+sale|plot|purchase|acquisition|available)|serviced\s+plot|service\s+plot|residential\s+plot|commercial\s+plot|buy\s+(land|a\s+plot)|land\s+(in|at|near|around)|bare\s+land|raw\s+land|developed\s+plot|land\s+bank|hectares?|acres?\s+of\s+land|parcels?\s+of\s+land)\b/i,
+    ],
+    answer: `We handle land sales and acquisitions across our service areas — residential plots, commercial land, and serviced estates.\n\n**Available land types:**\n• **Serviced plots** — Infrastructure-ready (access roads, water, electricity) within gated estates; ready for immediate development\n• **Bare / raw land** — Suitable for later development; lower entry cost\n• **Commercial land** — Mixed-use and commercial plots in high-traffic corridors\n\n**Key locations:**\n• Lagos — Lekki, Ikoyi, Ajah, and emerging peri-urban corridors (including areas near the Ogun State border such as Arepo, Mowe, Ibafo)\n• Abuja — Gwarinpa, Karsana, Airport Road corridor, Lokogoma\n• International — Freehold plots in Dubai via our partner agencies\n\n**Critical due diligence for land (especially peri-urban areas):**\n• Verify title — C of O, Registered Deed of Assignment, or formal Gazette\n• Confirm excision status — essential for land in Ogun State fringe zones\n• Physically inspect access roads and infrastructure claims\n• Check for government acquisition or road reservation overlaps\n\nFor current land availability, specific estate names, or areas like Arepo:\n\n• WhatsApp: ${WA}`,
+  },
+
   // ── Neighbourhood / area guide (covers micro + macro questions) ───────────────
   {
     id: "neighbourhood",
@@ -378,7 +388,7 @@ const RULES: ConciergeRule[] = [
 // ─── FALLBACK ─────────────────────────────────────────────────────────────────
 
 export const CONCIERGE_FALLBACK =
-  `I don't have enough information to answer that fully right now. For the best response, please contact our agent directly:\n\n• WhatsApp: ${WA}\n• Email: ${EMAIL}\n\nThey'll respond the same business day.`;
+  `That sounds like a specific inquiry. Our agents have access to the full portfolio — including off-market and unlisted opportunities not yet on this site.\n\nPlease contact us directly with your requirements:\n\n• WhatsApp: ${WA}\n• Email: ${EMAIL}\n\nShare the property type, location, and budget — we'll respond the same business day.`;
 
 // ─── MATCHER ──────────────────────────────────────────────────────────────────
 
