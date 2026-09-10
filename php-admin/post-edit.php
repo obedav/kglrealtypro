@@ -755,7 +755,7 @@ details.card > *:not(summary) { margin-top:18px; }
             </svg>
             Add photos to gallery
         </summary>
-        <form method="post" action="/post-image-add.php" enctype="multipart/form-data">
+        <form method="post" action="/post-image-add.php?post_id=<?= (int)$id ?>" enctype="multipart/form-data">
             <?= csrf_field() ?>
             <input type="hidden" name="post_id" value="<?= $id ?>">
             <div class="form-row" style="margin-bottom:12px">

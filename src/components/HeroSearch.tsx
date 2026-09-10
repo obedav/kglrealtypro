@@ -103,6 +103,7 @@ export function HeroSearch({ cities }: HeroSearchProps) {
 
         {/* ══════════════════════════════
             LEFT PANEL — content
+            
         ══════════════════════════════ */}
         <div className="relative flex flex-1 flex-col items-center justify-center px-6 py-16 text-center lg:w-[54%] lg:shrink-0 lg:items-start lg:px-20 lg:text-left">
 

@@ -325,7 +325,7 @@ render_header($id ? 'Edit investment opportunity' : 'New investment opportunity'
         Upload photos or paste a URL. First image becomes the cover photo shown on the investment card.
     </p>
 
-    <form method="post" action="/investment-image-add.php" enctype="multipart/form-data">
+    <form method="post" action="/investment-image-add.php?investment_id=<?= (int)$id ?>" enctype="multipart/form-data">
         <?= csrf_field() ?>
         <input type="hidden" name="investment_id" value="<?= (int)$id ?>">
 

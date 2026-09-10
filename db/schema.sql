@@ -95,6 +95,43 @@ CREATE TABLE IF NOT EXISTS listing_images (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------------------------
+-- Investments
+-- --------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS investments (
+  id               INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  slug             VARCHAR(191) NOT NULL UNIQUE,
+  title            VARCHAR(255) NOT NULL,
+  excerpt          TEXT NOT NULL,
+  description      MEDIUMTEXT NOT NULL,
+  price_ngn        BIGINT UNSIGNED NOT NULL,
+  city             VARCHAR(80)  NOT NULL,
+  country          VARCHAR(80)  NOT NULL DEFAULT 'Nigeria',
+  category         VARCHAR(80)  DEFAULT NULL,
+  property_type    VARCHAR(80)  DEFAULT NULL,
+  status           ENUM('available','sold','off_market','pending') NOT NULL DEFAULT 'available',
+  featured         TINYINT(1)   NOT NULL DEFAULT 0,
+  seo_title        VARCHAR(255) DEFAULT NULL,
+  meta_description VARCHAR(500) DEFAULT NULL,
+  date_posted      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  date_updated     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_status   (status),
+  INDEX idx_featured (featured),
+  INDEX idx_date     (date_posted)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS investment_images (
+  id            INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  investment_id INT UNSIGNED NOT NULL,
+  url           VARCHAR(500) NOT NULL,
+  alt           VARCHAR(255) DEFAULT NULL,
+  caption       VARCHAR(500) DEFAULT NULL,
+  position      SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+  INDEX idx_investment (investment_id, position),
+  CONSTRAINT fk_investment_images_investment
+    FOREIGN KEY (investment_id) REFERENCES investments(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------------------------
 -- Agents
 -- --------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS agents (

@@ -3,6 +3,22 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/includes/layout.php';
 require_admin();
+
+// Guard: when the request body exceeds PHP's post_max_size, PHP silently
+// empties $_POST and $_FILES — causing the CSRF check below to fire with a
+// misleading "CSRF token mismatch" error. Catch this before CSRF runs and
+// redirect back with a clear message. The listing ID is read from the URL
+// (see form action in listing-edit.php) because $_POST is already gone.
+if ($_SERVER['REQUEST_METHOD'] === 'POST'
+    && empty($_POST)
+    && isset($_SERVER['CONTENT_LENGTH'])
+    && (int)$_SERVER['CONTENT_LENGTH'] > 0
+) {
+    $lid = (int)($_GET['listing_id'] ?? 0);
+    flash('Upload failed: the total file size exceeded the server limit. Try uploading fewer images at a time, or compress them first.');
+    header('Location: ' . ($lid > 0 ? "/listing-edit.php?id=$lid#images" : '/listings.php')); exit;
+}
+
 require_csrf();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit; }

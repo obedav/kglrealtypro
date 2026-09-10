@@ -581,7 +581,7 @@ render_header($id ? 'Edit listing' : 'New listing');
         First image added becomes the cover photo.
     </p>
 
-    <form method="post" action="/listing-image-add.php" enctype="multipart/form-data">
+    <form method="post" action="/listing-image-add.php?listing_id=<?= (int)$id ?>" enctype="multipart/form-data">
         <?= csrf_field() ?>
         <input type="hidden" name="listing_id" value="<?= (int)$id ?>">
 
