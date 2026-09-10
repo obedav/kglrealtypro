@@ -1,7 +1,5 @@
-# PHP upload limits for the admin panel.
-# These override the server defaults for Apache mod_php.
-# For PHP-FPM / LiteSpeed (Namecheap default), see .user.ini in this directory.
-php_value upload_max_filesize 64M
-php_value post_max_size       128M
-php_value max_file_uploads    30
-php_value memory_limit        256M
+# PHP upload limits are set in .user.ini (this directory) — that file is the
+# correct mechanism for LiteSpeed and PHP-FPM, which Namecheap cPanel uses.
+# php_value directives are NOT used here because LiteSpeed ignores them and
+# some hosts reject .htaccess files that contain them (causing a 500 error).
+Options -Indexes
