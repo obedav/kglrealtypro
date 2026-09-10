@@ -45,9 +45,9 @@ export default async function PropertiesPage({
   };
 
   const [listings, total, facets] = await Promise.all([
-    getListings(filters),
-    getListingCount(filters),
-    getListingFacets(),
+    getListings(filters).catch(() => [] as Awaited<ReturnType<typeof getListings>>),
+    getListingCount(filters).catch(() => 0),
+    getListingFacets().catch(() => ({ cities: [], amenities: [], propertyTypes: [] })),
   ]);
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));

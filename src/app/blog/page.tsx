@@ -11,7 +11,7 @@ export const metadata = { title: "Insights", alternates: { canonical: "/blog" } 
 export const revalidate = 600;
 
 export default async function BlogPage() {
-  const posts = await getBlogPosts(24);
+  const posts = await getBlogPosts(24).catch(() => [] as Awaited<ReturnType<typeof getBlogPosts>>);
 
   return (
     <>

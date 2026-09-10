@@ -9,7 +9,7 @@ export const metadata = { title: "New Developments" };
 export const revalidate = 300;
 
 export default async function NewDevelopmentsPage() {
-  const listings = await getListings({ first: 60, status: "available" });
+  const listings = await getListings({ first: 60, status: "available" }).catch(() => [] as Awaited<ReturnType<typeof getListings>>);
 
   return (
     <>

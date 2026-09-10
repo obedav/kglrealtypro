@@ -147,7 +147,7 @@ function InvestmentCard({ inv }: { inv: InvestmentOpportunity }) {
 }
 
 export default async function InvestmentPage() {
-  const opportunities = await getInvestments("available");
+  const opportunities = await getInvestments("available").catch(() => [] as Awaited<ReturnType<typeof getInvestments>>);
 
   return (
     <>

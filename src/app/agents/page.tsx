@@ -11,7 +11,7 @@ export const metadata = { title: "Agents" };
 export const revalidate = 600;
 
 export default async function AgentsPage() {
-  const agents = await getAgents();
+  const agents = await getAgents().catch(() => [] as Awaited<ReturnType<typeof getAgents>>);
 
   return (
     <>

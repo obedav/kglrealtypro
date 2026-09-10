@@ -58,9 +58,12 @@ const FAQS = [
 ];
 
 export default async function HomePage() {
+  // Wrap in try/catch so a DB connectivity failure (e.g. cPanel Remote MySQL
+  // blocking Vercel's rotating IPs) degrades gracefully rather than crashing
+  // the entire page. The site renders with empty listings until DB is reachable.
   const [featured, facets] = await Promise.all([
-    getFeaturedListings(8),
-    getListingFacets(),
+    getFeaturedListings(8).catch(() => [] as Awaited<ReturnType<typeof getFeaturedListings>>),
+    getListingFacets().catch(() => ({ cities: [], amenities: [], propertyTypes: [] })),
   ]);
 
   return (
