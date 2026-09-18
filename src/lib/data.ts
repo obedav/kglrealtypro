@@ -7,6 +7,7 @@
 
 import type { RowDataPacket } from "mysql2";
 import { isDbConfigured, query, type ParamValue } from "@/lib/db";
+import { logger } from "@/lib/logger";
 import type { Agent, BlogPost, Listing, ListingStatus, InvestmentOpportunity, InvestmentStatus } from "@/types";
 
 // ---------------------------------------------------------------------------
@@ -600,17 +601,22 @@ export async function getListingCount(opts: ListingFilters = {}): Promise<number
 }
 
 export async function getListingBySlug(slug: string): Promise<Listing | null> {
-  if (useApi()) {
-    const row = await apiFetch<ApiListingRow | null>("listing_by_slug", { slug });
-    return row ? mapApiListing(row) : null;
+  try {
+    if (useApi()) {
+      const row = await apiFetch<ApiListingRow | null>("listing_by_slug", { slug });
+      return row ? mapApiListing(row) : null;
+    }
+    if (useStubs()) return STUB_LISTINGS.find((l) => l.slug === slug) ?? null;
+    const rows = await query<ListingRow>(
+      "SELECT * FROM listings WHERE slug = ? LIMIT 1",
+      [slug],
+    );
+    const hydrated = await hydrateListings(rows);
+    return hydrated[0] ?? null;
+  } catch (err) {
+    logger.error("data/getListingBySlug", { slug, err });
+    return null;
   }
-  if (useStubs()) return STUB_LISTINGS.find((l) => l.slug === slug) ?? null;
-  const rows = await query<ListingRow>(
-    "SELECT * FROM listings WHERE slug = ? LIMIT 1",
-    [slug],
-  );
-  const hydrated = await hydrateListings(rows);
-  return hydrated[0] ?? null;
 }
 
 export async function getListingSlugs(): Promise<string[]> {
@@ -686,16 +692,21 @@ export async function getAgents(): Promise<Agent[]> {
 }
 
 export async function getAgentBySlug(slug: string): Promise<Agent | null> {
-  if (useApi()) {
-    const row = await apiFetch<ApiAgentRow | null>("agent_by_slug", { slug });
-    return row ? mapApiAgent(row) : null;
+  try {
+    if (useApi()) {
+      const row = await apiFetch<ApiAgentRow | null>("agent_by_slug", { slug });
+      return row ? mapApiAgent(row) : null;
+    }
+    if (useStubs()) return STUB_AGENTS.find((a) => a.slug === slug) ?? null;
+    const rows = await query<AgentRow>(
+      "SELECT * FROM agents WHERE slug = ? LIMIT 1",
+      [slug],
+    );
+    return rows[0] ? mapAgent(rows[0]) : null;
+  } catch (err) {
+    logger.error("data/getAgentBySlug", { slug, err });
+    return null;
   }
-  if (useStubs()) return STUB_AGENTS.find((a) => a.slug === slug) ?? null;
-  const rows = await query<AgentRow>(
-    "SELECT * FROM agents WHERE slug = ? LIMIT 1",
-    [slug],
-  );
-  return rows[0] ? mapAgent(rows[0]) : null;
 }
 
 // ---------------------------------------------------------------------------
@@ -715,16 +726,21 @@ export async function getBlogPosts(limit = 12): Promise<BlogPost[]> {
 }
 
 export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> {
-  if (useApi()) {
-    const row = await apiFetch<ApiPostRow | null>("blog_post_by_slug", { slug });
-    return row ? mapApiPost(row) : null;
+  try {
+    if (useApi()) {
+      const row = await apiFetch<ApiPostRow | null>("blog_post_by_slug", { slug });
+      return row ? mapApiPost(row) : null;
+    }
+    if (useStubs()) return STUB_POSTS.find((p) => p.slug === slug) ?? null;
+    const rows = await query<PostRow>(
+      "SELECT * FROM posts WHERE slug = ? LIMIT 1",
+      [slug],
+    );
+    return rows[0] ? mapPost(rows[0]) : null;
+  } catch (err) {
+    logger.error("data/getBlogPostBySlug", { slug, err });
+    return null;
   }
-  if (useStubs()) return STUB_POSTS.find((p) => p.slug === slug) ?? null;
-  const rows = await query<PostRow>(
-    "SELECT * FROM posts WHERE slug = ? LIMIT 1",
-    [slug],
-  );
-  return rows[0] ? mapPost(rows[0]) : null;
 }
 
 // ---------------------------------------------------------------------------
@@ -847,25 +863,30 @@ export async function getFeaturedInvestments(limit = 6): Promise<InvestmentOppor
 }
 
 export async function getInvestmentBySlug(slug: string): Promise<InvestmentOpportunity | null> {
-  if (useApi()) {
-    const row = await apiFetch<ApiInvestmentRow | null>("investment_by_slug", { slug });
-    return row ? mapApiInvestment(row) : null;
+  try {
+    if (useApi()) {
+      const row = await apiFetch<ApiInvestmentRow | null>("investment_by_slug", { slug });
+      return row ? mapApiInvestment(row) : null;
+    }
+    if (useStubs()) return null;
+    const rows = await query<RowDataPacket & ApiInvestmentRow>(
+      `SELECT io.*,
+              (SELECT url FROM investment_images ii WHERE ii.investment_id = io.id ORDER BY ii.position ASC LIMIT 1) AS cover_image
+         FROM investment_opportunities io WHERE io.slug = ? LIMIT 1`,
+      [slug],
+    );
+    if (!rows[0]) return null;
+    const inv = rows[0];
+    const imgs = await query<RowDataPacket & { url: string }>(
+      "SELECT url FROM investment_images WHERE investment_id = ? ORDER BY position ASC",
+      [inv.id],
+    );
+    inv.gallery = imgs.map((r) => r.url);
+    return mapApiInvestment(inv);
+  } catch (err) {
+    logger.error("data/getInvestmentBySlug", { slug, err });
+    return null;
   }
-  if (useStubs()) return null;
-  const rows = await query<RowDataPacket & ApiInvestmentRow>(
-    `SELECT io.*,
-            (SELECT url FROM investment_images ii WHERE ii.investment_id = io.id ORDER BY ii.position ASC LIMIT 1) AS cover_image
-       FROM investment_opportunities io WHERE io.slug = ? LIMIT 1`,
-    [slug],
-  );
-  if (!rows[0]) return null;
-  const inv = rows[0];
-  const imgs = await query<RowDataPacket & { url: string }>(
-    "SELECT url FROM investment_images WHERE investment_id = ? ORDER BY position ASC",
-    [inv.id],
-  );
-  inv.gallery = imgs.map((r) => r.url);
-  return mapApiInvestment(inv);
 }
 
 export async function getInvestmentSlugs(): Promise<string[]> {
